@@ -195,6 +195,7 @@ class plotDialog(Ui_PlotDialog):
             cb = self.canvas.ph.axcb[self.activeAxId]
             if(cb):
                 cb.remove()
+                self.canvas.fig.subplots_adjust(right=0.9)
         else:
             self.data[self.activeAxId].restore()
         self.canvas.plot_figure(self.data[self.activeAxId], self.nAxes, self.activeAxId)
@@ -209,6 +210,8 @@ class plotDialog(Ui_PlotDialog):
             cb = self.canvas.ph.axcb[self.activeAxId]
             if(cb):
                 cb.remove()
+                self.canvas.fig.subplots_adjust(right=0.9)
+                print self.canvas.fig.axes
         else:
             self.data[self.activeAxId].restore()
         self.canvas.plot_figure(self.data[self.activeAxId], self.nAxes, self.activeAxId)
