@@ -30,6 +30,8 @@ class plotHandler:
         plt.legend()
 
     def timeline(self, X, Y, xlabel, ylabel, varlabel):
+        if(self.ax.yaxis_inverted()):
+            self.ax.invert_yaxis()
         self.ax.plot(X, Y, '-', label=varlabel)
         self.ax.set_xlabel(xlabel)
         self.ax.set_ylabel(ylabel)

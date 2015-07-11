@@ -32,13 +32,6 @@ class MplCanvas(FigureCanvas):
     def plot_figure(self):
         pass
 
-class sineCanvas(MplCanvas):
-    def plot_figure(self):
-        t = np.arange(0.0, 3.0, 0.01)
-        s = np.sin(2*np.pi*t)
-        self.axes.plot(t, s)
-        self.draw()
-
 class dataCanvas(MplCanvas):
     def __init__(self, dialog=None, parent=None):
         self.dialog = dialog

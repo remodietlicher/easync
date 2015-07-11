@@ -2,6 +2,10 @@ import numpy as np
 from copy import copy, deepcopy
 
 ops = ['+', '-', '*', '/', '(', ')']
+old_err_state = np.seterr(divide='raise')
+ignored_states = np.seterr(**old_err_state)
+meps = np.finfo(np.float32).eps
+print 'machine precision for %s: %s'%('np.float32', meps)
 
 def getNext(string, pos):
     var = ''
@@ -39,6 +43,7 @@ def evalEq(string, varDict):
     pos = 0
     zero = 0
     nested = [zero]
+    nestedStr = ['']
     nestedOp = ['+']
     nLvl = 0
     lastOp = 'None'
@@ -57,13 +62,12 @@ def evalEq(string, varDict):
                 print 'missing "("'
                 return None
         if(var not in ops):
-            value = copy(varDict[var])
+            value = varDict[var]
             evaluate = True
         if(evaluate):
-            #print value, nLvl, nested[nLvl], lastOp
-            #print nested[nLvl].shape
+            value = np.where(np.abs(value)<meps, 0, value)
             if(lastOp == 'None'):
-                nested[nLvl] = value
+                nested[nLvl] = copy(value)
             elif(lastOp == '+'):
                 nested[nLvl][:] += value
             elif(lastOp == '-'):
@@ -71,8 +75,8 @@ def evalEq(string, varDict):
             elif(lastOp == '*'):
                 nested[nLvl][:] *= value
             elif(lastOp == '/'):
-                nested[nLvl][:] /= value+1e-12
-            #print nested[nLvl].shape
+                zeros = np.zeros(value.shape)
+                nested[nLvl][:] = np.where(np.abs(value)<meps, 0, nested[nLvl][:]/value)
                     
         if(var == '('):
             nLvl += 1
@@ -85,8 +89,6 @@ def evalEq(string, varDict):
     if(nLvl > 0):
         print 'missing ")"'
         return None
-    #else:
-    #    print 'result:', nested[0]
         
     return nested[0]
         
