@@ -18,7 +18,8 @@ class plotHandler:
             self.ax.hold(True)
 
     def xzplot(self, X, Y, xlabel, ylabel, varlabel):
-        self.ax.invert_yaxis()
+        if(not self.ax.yaxis_inverted()):
+            self.ax.invert_yaxis()
         self.ax.set_xlabel(xlabel)
         self.ax.set_ylabel(ylabel)
         self.ax.plot(X, Y, label=varlabel)
