@@ -16,13 +16,14 @@ class dataHandler:
         self.longname = equation
         self.ndim = len(self.var.shape)
         self.ndimtot = len(self.var.shape)
-        self.nlvl = self.var.shape[0]
+        self.nlvl = self.var.shape[1]
         try:
             self.height = data.variables['lev'][:]
             self.heightunit = 'pressure [Pa]'
         except:
-            self.height = np.linspace(0, self.nlvl, self.nlvl+1)
+            self.height = np.linspace(0, self.nlvl-1, self.nlvl)
             self.heightunit = 'model level'
+            print 'nlvl:', self.nlvl
         variables = getVars(equation)
         if(len(variables) == 1):
             varname = variables[0]
