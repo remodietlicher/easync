@@ -63,7 +63,6 @@ class plotHandler:
         cb.set_label(zlabel)
         self.axzlabel.update({self.currentAx:zlabel})
         self.axcb.update({self.currentAx:cb})
-        print 'saved %s to axis %s'%(zlabel, self.currentAx)
         self.ax.set_xlabel(xlabel)
         self.ax.set_ylabel(ylabel)
         self.ax.set_xlim(np.abs(X).min(), np.abs(X).max())

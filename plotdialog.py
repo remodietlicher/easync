@@ -41,6 +41,7 @@ class dataCanvas(MplCanvas):
         xlabel = ''
         ylabel = ''
         zlabel = ''
+        print 'plotting %s...'%(data.longname)
         if(plotType == 'TIME'):
             xlabel = data.timeunit
             ylabel = data.varunit
@@ -176,7 +177,6 @@ class plotDialog(Ui_PlotDialog):
         self.activeAx.legend(handles, newLabels)
         self.canvas.draw()
         handles, labels = self.activeAx.get_legend_handles_labels()
-        print 'labels after setting them:', labels
 
     def changePlotType(self):
         self.activeAx.cla()
