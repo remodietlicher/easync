@@ -30,7 +30,7 @@ class mainWindow(Ui_MainWindow):
         self.specialvar_button.clicked.connect(self.addSpecialVar)
 
     def getFilename(self):
-        self.filename = QtGui.QFileDialog.getOpenFileName(self, 'File Browser', '/home/remo/data/SCMmpace/cloud/')
+        self.filename = QtGui.QFileDialog.getOpenFileName(self, 'File Browser')
 
     def setFilename(self):
         self.filename_field.setText(self.filename)
