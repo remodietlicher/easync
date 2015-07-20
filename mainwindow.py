@@ -4,6 +4,7 @@ import sys
 import os
 from cmainwindow import Ui_MainWindow
 from plotdialog import plotDialog
+from configdialog import configDialog
 from datahandler import dataHandler
 from str2eq import evalEq, getVars
 
@@ -88,12 +89,15 @@ class mainWindow(Ui_MainWindow):
         varnames1d = self.textFromListWidget(self.var1d_list)
         varnames2d = self.textFromListWidget(self.var2d_list)
         varnames3d = self.textFromListWidget(self.var3d_list)
-        if(len(varnames1d) > 0):
-            self.makeDialog(varnames1d)
-        if(len(varnames2d) > 0):
-            self.makeDialog(varnames2d)
-        if(len(varnames3d) > 0):
-            self.makeDialog(varnames3d)
+        varnames = varnames1d + varnames2d + varnames3d
+        if(len(varnames) > 0):
+            self.makeDialog(varnames)
+        #if(len(varnames1d) > 0):
+        #    self.makeDialog(varnames1d)
+        #if(len(varnames2d) > 0):
+        #    self.makeDialog(varnames2d)
+        #if(len(varnames3d) > 0):
+        #    self.makeDialog(varnames3d)
 
     def textFromListWidget(self, lwidget, allNames=False):
         varnames = []
@@ -109,9 +113,13 @@ class mainWindow(Ui_MainWindow):
         for name in varnames:
             dh = dataHandler(self.data, str(name))
             data.append(dh)
-        dialog = plotDialog(data)
-        dialog.setWindowTitle('Matplotlib Plot')
-        dialog.show()
+        pdialog = plotDialog(data)
+        pdialog.setWindowTitle('Matplotlib Plot')
+        pdialog.show()
+
+        cdialog = configDialog(pdialog)
+        cdialog.setWindowTitle('Configure')
+        cdialog.show()
 
 
 if __name__ == '__main__':

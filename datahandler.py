@@ -37,32 +37,20 @@ class dataHandler:
                 self.longname = data.variables[varname].long_name
             except:
                 print 'no variable information.'
-        
-#    def __init__(self, data, varname=''):
-#        self.data = data
-#        self.time = data.variables['time'][:]
-#        self.timeunit = data.variables['time'].units
-#        self.var = np.squeeze(data.variables[varname][:])
-#        self.varcpy = copy(self.var)
-#        self.ndim = len(self.var.shape)
-#        self.nlvl = self.var.shape[0]
-#        try:
-#            self.height = data.variables['lev'][:]
-#            self.heightunit = 'pressure [Pa]'
-#        except:
-#            self.height = np.linspace(0, self.nlvl, self.nlvl+1)
-#            self.heightunit = 'model level'
-#        self.varunit = ''
-#        self.varlabel = varname
-#        self.longname = varname
-#        try:
-#            self.varunit = data.variables[varname].units
-#        except:
-#            print 'variable is dimensionless or unit not given'
-#        try:
-#            self.longname = data.variables[varname].long_name
-#        except:
-#            print 'no variable information.'
+
+        self.hasTimeVal = False
+        self.hasHeightVal = False
+        self.defaultPlotType = ''
+        if(self.ndim == 1 and len(self.time)==len(self.var)):
+            self.hasTimeVal = True
+            self.defaultPlotType = 'TIME'
+        elif(self.ndim == 1):
+            self.hasHeightVal = True
+            self.defaultPlotType = 'HEIGHT'
+        elif(self.ndim == 2):
+            self.hasTimeVal = True
+            self.hasHeightVal = True
+            self.defaultPlotType = 'TIMEHEIGHT'
 
     def integrateZ(self):
         self.var = np.sum(self.var, axis=1)/self.var.shape[1]
@@ -75,3 +63,25 @@ class dataHandler:
     def restore(self):
         self.var = copy(self.varcpy)
         self.ndim = len(self.var.shape)
+
+    def getTimeValue(self):
+        if(self.hasTimeVal and not self.hasHeightVal):
+            return self.var
+        elif(self.hasTimeVal and self.hasHeightVal):
+            return np.sum(self.var, axis=1)/self.var.shape[1]
+        else:
+            return None
+
+    def getHeightValue(self):
+        if(self.hasHeightVal and not self.hasTimeVal):
+            return self.var
+        elif(self.hasTimeVal and self.hasHeightVal):
+            return np.sum(self.var, axis=0)/self.var.shape[0]
+        else:
+            return None
+
+    def getTimeHeightMatrix(self):
+        if(self.hasHeightVal and self.hasTimeVal):
+            return self.var
+        else:
+            return None

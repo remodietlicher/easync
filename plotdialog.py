@@ -36,118 +36,108 @@ class dataCanvas(MplCanvas):
     def __init__(self, dialog=None, parent=None):
         self.dialog = dialog
         MplCanvas.__init__(self, parent)
-    def plot_figure(self, data, nAxes, current):
+    def plot_figure(self, data, nAxes, current, plotType):
         self.ph.makeAxes(nAxes, current)
         xlabel = ''
         ylabel = ''
         zlabel = ''
-        if(data.ndim == 0):
-            print data.var
-        elif(data.ndim == 1 and len(data.time)==len(data.var)):
+        if(plotType == 'TIME'):
             xlabel = data.timeunit
             ylabel = data.varunit
             zlabel = ''
-            self.ph.timeline(data.time, data.var, xlabel, ylabel, data.varlabel)
-        elif(data.ndim == 1):
+            self.ph.timeline(data.time, data.getTimeValue(), xlabel, ylabel, data.varlabel)
+        elif(plotType == 'HEIGHT'):
             xlabel = data.varunit
             ylabel = data.heightunit
             zlabel = ''
-            self.ph.xzplot(data.var, data.height, xlabel, ylabel, data.varlabel)
-        elif(data.ndim == 2):
+            self.ph.xzplot(data.getHeightValue(), data.height, xlabel, ylabel, data.varlabel)
+        elif(plotType == 'TIMEHEIGHT'):
             xlabel = data.timeunit
             ylabel = data.heightunit
             zlabel = data.varunit
-            self.ph.timeline2d(data.time, data.height, data.var, xlabel, ylabel, zlabel)
+            self.ph.timeline2d(data.time, data.height, data.getTimeHeightMatrix(), xlabel, ylabel, zlabel)
         else:
             print 'unknown dimensions of input'
-        #self.dialog.updateOptions()
         self.draw()
 
 class plotDialog(Ui_PlotDialog):
     def __init__(self, data):
         Ui_PlotDialog.__init__(self)
 
+        self.configDialog = None
         self.data = data
         self.nAxes = len(data)
-        d = {'avgT':False, 'avgH':False, 'onefig':False}
-        self.cbState = []
-        for i in range(self.nAxes):
-            self.cbState.append(copy(d))
-        self.activeAx = None
+        self.plotTypes = [d.defaultPlotType for d in data]
+        self.canvas = dataCanvas(dialog=self, parent=self)
         self.activeAxId = 0
-        self.canvas = dataCanvas(dialog=self, parent=self.plotWidget)
-        self.updateFigure()
-        self.setActiveAx()
+        self.reloadFigures()
+        self.activeAx = self.canvas.fig.add_subplot(self.nAxes,1,self.activeAxId+1)
         toolbar = NavigationToolbar(self.canvas, self)
 
         self.plotLayout.addWidget(toolbar)
         self.plotLayout.addWidget(self.canvas)
 
-        self.titleaxis_button.clicked.connect(self.set_xlabel)
-        self.titleaxis_button.clicked.connect(self.set_ylabel)
-        self.titleaxis_button.clicked.connect(self.set_title)
-        self.titleaxis_button.clicked.connect(self.set_unit)
-        self.activeax_comb.activated.connect(self.setActiveAx)
-
-        self.avgT_cb.stateChanged.connect(self.averageTime)
-        self.avgH_cb.stateChanged.connect(self.averageHeight)
-        self.onefig_cb.stateChanged.connect(self.setNAxes)
-
-        self.legendedit_button.clicked.connect(self.editLegendList)
+    def registerConfigDialog(self, configDialog):
+        self.configDialog = configDialog
+        self.updateAvailablePlots()
+        self.updateConfig()
+        self.updateAxesCombobox()
 
     def setActiveAx(self):
-        self.activeAxId = self.activeax_comb.currentIndex()
+        self.activeAxId = self.configDialog.getActiveAxId()
         print 'active axis=',self.activeAxId
         self.activeAx = self.canvas.fig.add_subplot(self.nAxes,1,self.activeAxId+1)
-        self.updateOptions()
+        self.updateAvailablePlots()
+        print self.plotTypes
+        self.updateConfig()
          
-    def updateFigure(self):
-        self.activeax_comb.clear()
+    def reloadFigures(self):
+        self.canvas.fig.clf()
         for i,d in enumerate(self.data):
-            current = min(self.nAxes-1, i)
-            self.canvas.plot_figure(d, self.nAxes, current)
+            current = min(i, self.nAxes-1)
+            self.canvas.plot_figure(d, self.nAxes, current, self.plotTypes[i])
+        self.activeAx = self.canvas.fig.add_subplot(self.nAxes,1,self.activeAxId+1)
+
+    def updateAxesCombobox(self):
+        self.configDialog.activeax_comb.blockSignals(True)
+        self.configDialog.activeax_comb.clear()
+        for i in range(len(self.data)):
             if(i<self.nAxes):
-                self.activeax_comb.addItem('Axis %i'%(current+1))
+                self.configDialog.activeax_comb.addItem('Axis %i'%(i+1))
+        self.configDialog.activeax_comb.blockSignals(False)
 
-    def updateOptions(self):
-        ndimtot = self.data[self.activeAxId].ndimtot
-        ndim = self.data[self.activeAxId].ndim
-        if(ndim == 1):
-            self.unit_field.setEnabled(False)
-        elif(ndim == 2):
-            self.unit_field.setEnabled(True)
-        if(ndimtot == 1):
-            self.avgT_cb.setEnabled(False)
-            self.avgH_cb.setEnabled(False)
-        elif(ndimtot == 2):
-            self.avgT_cb.setEnabled(True)
-            self.avgH_cb.setEnabled(True)
-        if(self.avgH_cb.isChecked()):
-            self.avgT_cb.setEnabled(False)
-        if(self.avgT_cb.isChecked()):
-            self.avgH_cb.setEnabled(False)
-
-        self.onefig_cb.blockSignals(True)
-        self.avgH_cb.blockSignals(True)
-        self.avgT_cb.blockSignals(True)
-        self.onefig_cb.setChecked(self.cbState[self.activeAxId]['onefig'])
-        self.avgH_cb.setChecked(self.cbState[self.activeAxId]['avgH'])
-        self.avgT_cb.setChecked(self.cbState[self.activeAxId]['avgT'])
-        self.onefig_cb.blockSignals(False)
-        self.avgH_cb.blockSignals(False)
-        self.avgT_cb.blockSignals(False)
-
+    def updateConfig(self):
         handles, labels = self.activeAx.get_legend_handles_labels()
         xlabel = self.activeAx.get_xlabel()
         ylabel = self.activeAx.get_ylabel()
         zlabel = self.canvas.ph.axzlabel.get(self.activeAxId, '')
         print 'getting xlabel "%s", ylabel "%s", zlabel "%s" for axis "%s"'%(xlabel, ylabel,zlabel, self.activeAxId)
-        self.xlabel_field.setText(xlabel)
-        self.ylabel_field.setText(ylabel)
-        self.unit_field.setText(zlabel)
+        self.configDialog.setAxes(xlabel, ylabel, zlabel)
+        self.configDialog.setPlotType(self.plotTypes[self.activeAxId])
+        self.configDialog.setLabels(labels)
+
+    def updateAvailablePlots(self):
+        self.configDialog.plot_comb.blockSignals(True)
+        self.configDialog.plotToCBID = {}
+        self.configDialog.plot_comb.clear()
+        cnt = 0
+        if(self.data[self.activeAxId].hasTimeVal):
+            self.configDialog.plot_comb.addItem('TIME')
+            self.configDialog.plotToCBID.update({'TIME':cnt})
+            cnt += 1
+        if(self.data[self.activeAxId].hasHeightVal):
+            self.configDialog.plot_comb.addItem('HEIGHT')
+            self.configDialog.plotToCBID.update({'HEIGHT':cnt})
+            cnt += 1
+        if(self.data[self.activeAxId].hasTimeVal and self.data[self.activeAxId].hasHeightVal):
+            self.configDialog.plot_comb.addItem('TIMEHEIGHT')
+            self.configDialog.plotToCBID.update({'TIMEHEIGHT':cnt})
+            cnt += 1
+        self.configDialog.plot_comb.blockSignals(False)
+        
         
     def set_unit(self):
-        text = str(self.unit_field.text())
+        text = str(self.configDialog.zlabel_field.text())
         cb = self.canvas.ph.axcb.get(self.activeAxId, None)
         print 'setting %s to'%(text), cb
         if(cb):
@@ -156,72 +146,56 @@ class plotDialog(Ui_PlotDialog):
         self.canvas.draw()
 
     def set_xlabel(self):
-        label = self.xlabel_field.text()
+        label = self.configDialog.xlabel_field.text()
         self.activeAx.set_xlabel(label)
         self.canvas.draw()
 
     def set_ylabel(self):
-        label = self.ylabel_field.text()
+        label = self.configDialog.ylabel_field.text()
         self.activeAx.set_ylabel(label)
         self.canvas.draw()
 
     def set_title(self):
-        title = self.title_field.text()
+        title = self.configDialog.title_field.text()
         self.activeAx.set_title(title)
         self.canvas.draw()
 
     def setNAxes(self):
-        self.cbState[self.activeAxId]['onefig'] = self.onefig_cb.isChecked()
-        self.canvas.ph.fig.clear()
-        if self.onefig_cb.isChecked():
+        if self.configDialog.onefig_cb.isChecked():
             self.nAxes = 1
         else:
             self.nAxes = len(self.data)
-        self.updateFigure()
-
-    def updateLabels(self):
+        self.activeAxId = 0
+        self.reloadFigures()
+        self.updateAxesCombobox()
+        self.updateConfig()
+        
+    def setLabelsToPlot(self):
         handles, labels = self.activeAx.get_legend_handles_labels()
-        newLabels = [str(self.legend_list.item(i).text()) for i in range(self.legend_list.count())]
-        print labels
+        newLabels = [str(self.configDialog.legend_list.item(i).text()) for i in range(self.configDialog.legend_list.count())]
         print newLabels
         self.activeAx.legend(handles, newLabels)
-        self.canvas.draw()        
+        self.canvas.draw()
+        handles, labels = self.activeAx.get_legend_handles_labels()
+        print 'labels after setting them:', labels
 
-    def averageTime(self):
-        self.cbState[self.activeAxId]['avgT'] = self.avgT_cb.isChecked()
+    def changePlotType(self):
         self.activeAx.cla()
-        if(self.avgT_cb.isChecked()):
-            self.data[self.activeAxId].integrateT()
-            cb = self.canvas.ph.axcb[self.activeAxId]
-            if(cb):
-                cb.remove()
-                self.canvas.fig.subplots_adjust(right=0.9)
-        else:
-            self.data[self.activeAxId].restore()
-        self.canvas.plot_figure(self.data[self.activeAxId], self.nAxes, self.activeAxId)
-        self.updateOptions()
-
-    def averageHeight(self):
-        self.cbState[self.activeAxId]['avgH'] = self.avgH_cb.isChecked()
-        #print self.cbState
-        self.activeAx.cla()
-        if(self.avgH_cb.isChecked()):
-            self.data[self.activeAxId].integrateZ()
-            cb = self.canvas.ph.axcb[self.activeAxId]
-            if(cb):
-                cb.remove()
-                self.canvas.fig.subplots_adjust(right=0.9)
-                print self.canvas.fig.axes
-        else:
-            self.data[self.activeAxId].restore()
-        self.canvas.plot_figure(self.data[self.activeAxId], self.nAxes, self.activeAxId)
-        self.updateOptions()
+        newType = self.configDialog.getPlotType()
+        self.plotTypes[self.activeAxId] = newType
+        self.canvas.plot_figure(self.data[self.activeAxId], self.nAxes, self.activeAxId, self.configDialog.getPlotType())
+        cb = self.canvas.ph.axcb[self.activeAxId]
+        if(cb and (newType == 'TIME' or newType == 'HEIGHT')):
+            cb.remove()
+            self.canvas.ph.axcb[self.activeAxId] = None
+            self.canvas.fig.subplots_adjust(right=0.9)
+        self.canvas.draw()
+        self.updateConfig()
 
     def editLegendList(self):
-        item = self.legend_list.currentItem()
-        text = self.legendedit_field.text()
+        item, text = self.configDialog.getLegendItemText()
         item.setText(text)
-        self.updateLabels()
+        self.setLabelsToPlot()
         
 
     
