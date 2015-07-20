@@ -8,7 +8,6 @@ class dataHandler:
         self.time = data.variables['time']
         self.timeunit = data.variables['time'].units
         vardict = {key:var[:] for key,var in data.variables.iteritems()}
-        print vardict.keys()
         self.var = np.squeeze(evalEq(equation, vardict))
         self.varcpy = copy(self.var)
         self.varunit = 'combined'
@@ -23,7 +22,6 @@ class dataHandler:
         except:
             self.height = np.linspace(0, self.nlvl-1, self.nlvl)
             self.heightunit = 'model level'
-            print 'nlvl:', self.nlvl
         variables = getVars(equation)
         if(len(variables) == 1):
             varname = variables[0]

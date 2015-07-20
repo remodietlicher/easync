@@ -22,7 +22,7 @@ progversion = "0.1"
 class MplCanvas(FigureCanvas):
     def __init__(self, parent=None):
         self.fig = plt.figure()
-        self.fig.subplots_adjust(wspace=0.5)
+        self.fig.subplots_adjust(hspace=0.5)
 
         self.ph = plotHandler(self.fig)
 
@@ -58,6 +58,7 @@ class dataCanvas(MplCanvas):
             self.ph.timeline2d(data.time, data.height, data.getTimeHeightMatrix(), xlabel, ylabel, zlabel)
         else:
             print 'unknown dimensions of input'
+        self.ph.setTitle(data.longname)
         self.draw()
 
 class plotDialog(Ui_PlotDialog):
@@ -88,7 +89,6 @@ class plotDialog(Ui_PlotDialog):
         print 'active axis=',self.activeAxId
         self.activeAx = self.canvas.fig.add_subplot(self.nAxes,1,self.activeAxId+1)
         self.updateAvailablePlots()
-        print self.plotTypes
         self.updateConfig()
          
     def reloadFigures(self):
@@ -111,7 +111,6 @@ class plotDialog(Ui_PlotDialog):
         xlabel = self.activeAx.get_xlabel()
         ylabel = self.activeAx.get_ylabel()
         zlabel = self.canvas.ph.axzlabel.get(self.activeAxId, '')
-        print 'getting xlabel "%s", ylabel "%s", zlabel "%s" for axis "%s"'%(xlabel, ylabel,zlabel, self.activeAxId)
         self.configDialog.setAxes(xlabel, ylabel, zlabel)
         self.configDialog.setPlotType(self.plotTypes[self.activeAxId])
         self.configDialog.setLabels(labels)

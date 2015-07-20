@@ -17,6 +17,9 @@ class plotHandler:
         if(nAxes==1):
             self.ax.hold(True)
 
+    def setTitle(self, title):
+        self.ax.set_title(title)
+
     def xzplot(self, X, Y, xlabel, ylabel, varlabel):
         if(not self.ax.yaxis_inverted()):
             self.ax.invert_yaxis()
