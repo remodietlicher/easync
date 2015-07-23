@@ -26,6 +26,7 @@ class mainWindow(Ui_MainWindow):
         self.file_button.clicked.connect(self.getFilename)
         self.file_button.clicked.connect(self.setFilename)
         self.file_button.clicked.connect(self.setupVariables)
+        self.filename_field.returnPressed.connect(self.setupVariables)
         self.plot_button.clicked.connect(self.popPlotDialog)
         self.specialvar_button.clicked.connect(self.addSpecialVar)
 
