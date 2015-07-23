@@ -27,10 +27,11 @@ class configDialog(Ui_ConfigDialog):
         self.plot_comb.setCurrentIndex(self.plotToCBID[str(plotType)])
         self.plot_comb.blockSignals(False)
 
-    def setAxes(self, xlabel, ylabel, zlabel):
+    def setAxes(self, xlabel, ylabel, zlabel, title):
         self.xlabel_field.setText(xlabel)
         self.ylabel_field.setText(ylabel)
         self.zlabel_field.setText(zlabel)
+        self.title_field.setText(title)
 
     def getPlotType(self):
         return self.plot_comb.currentText()

@@ -75,7 +75,9 @@ class mainWindow(Ui_MainWindow):
         if(self.data):
             self.data.close()
         self.data = Dataset(str(self.filename), mode='r')
-        for key in self.data.variables:
+        keys = [key for key in self.data.variables]
+        keys = sorted(keys)
+        for key in keys:
             dim = len(np.squeeze(self.data.variables[key]).shape)
             if(dim == 1):
                 self.var1d_list.addItem(key)

@@ -112,7 +112,8 @@ class plotDialog(Ui_PlotDialog):
         xlabel = self.activeAx.get_xlabel()
         ylabel = self.activeAx.get_ylabel()
         zlabel = self.canvas.ph.axzlabel.get(self.activeAxId, '')
-        self.configDialog.setAxes(xlabel, ylabel, zlabel)
+        title = self.activeAx.get_title()
+        self.configDialog.setAxes(xlabel, ylabel, zlabel, title)
         self.configDialog.setPlotType(self.plotTypes[self.activeAxId])
         self.configDialog.setLabels(labels)
 
@@ -139,7 +140,7 @@ class plotDialog(Ui_PlotDialog):
     def set_unit(self):
         text = str(self.configDialog.zlabel_field.text())
         cb = self.canvas.ph.axcb.get(self.activeAxId, None)
-        print 'setting %s to'%(text), cb
+        #print 'setting %s to'%(text), cb
         if(cb):
             cb.set_label(text)
             self.canvas.ph.axzlabel.update({self.activeAxId:text})

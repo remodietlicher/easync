@@ -15,7 +15,10 @@ class dataHandler:
         self.longname = equation
         self.ndim = len(self.var.shape)
         self.ndimtot = len(self.var.shape)
-        self.nlvl = self.var.shape[1]
+        if(self.ndimtot > 1):
+            self.nlvl = self.var.shape[1]
+        else:
+            self.nlvl = 0
         try:
             self.height = data.variables['lev'][:]
             self.heightunit = 'pressure [Pa]'
