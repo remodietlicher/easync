@@ -87,3 +87,6 @@ class dataHandler:
             return self.var
         else:
             return None
+
+    def writeVariableToFile(self):
+        self.data.variables[self.varlabel][:] = self.var[:]

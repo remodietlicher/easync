@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'guiCreator/modifydialog.ui'
 #
-# Created: Fri Jul 24 08:20:14 2015
+# Created: Fri Jul 24 10:56:25 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -45,9 +45,9 @@ class Ui_ModifyDialog(QtGui.QDialog):
         self.use_for_all_timesteps_checkbox = QtGui.QCheckBox(self.optionsWidget)
         self.use_for_all_timesteps_checkbox.setObjectName(_fromUtf8("use_for_all_timesteps_checkbox"))
         self.horizontalLayout.addWidget(self.use_for_all_timesteps_checkbox)
-        self.shift_all_checkbox = QtGui.QCheckBox(self.optionsWidget)
-        self.shift_all_checkbox.setObjectName(_fromUtf8("shift_all_checkbox"))
-        self.horizontalLayout.addWidget(self.shift_all_checkbox)
+        self.select_all_checkbox = QtGui.QCheckBox(self.optionsWidget)
+        self.select_all_checkbox.setObjectName(_fromUtf8("select_all_checkbox"))
+        self.horizontalLayout.addWidget(self.select_all_checkbox)
         self.tmst_spinbox = QtGui.QSpinBox(self.optionsWidget)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -56,9 +56,9 @@ class Ui_ModifyDialog(QtGui.QDialog):
         self.tmst_spinbox.setSizePolicy(sizePolicy)
         self.tmst_spinbox.setObjectName(_fromUtf8("tmst_spinbox"))
         self.horizontalLayout.addWidget(self.tmst_spinbox)
-        self.saveButton = QtGui.QPushButton(self.optionsWidget)
-        self.saveButton.setObjectName(_fromUtf8("saveButton"))
-        self.horizontalLayout.addWidget(self.saveButton)
+        self.save_button = QtGui.QPushButton(self.optionsWidget)
+        self.save_button.setObjectName(_fromUtf8("save_button"))
+        self.horizontalLayout.addWidget(self.save_button)
         self.horizontalLayout_3.addLayout(self.horizontalLayout)
         self.verticalLayout.addWidget(self.optionsWidget)
         self.plotWidget = QtGui.QWidget(Dialog)
@@ -83,6 +83,6 @@ class Ui_ModifyDialog(QtGui.QDialog):
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(_translate("Dialog", "Dialog", None))
         self.use_for_all_timesteps_checkbox.setText(_translate("Dialog", "Use for all Timesteps", None))
-        self.shift_all_checkbox.setText(_translate("Dialog", "Shift all", None))
-        self.saveButton.setText(_translate("Dialog", "Save", None))
+        self.select_all_checkbox.setText(_translate("Dialog", "select all", None))
+        self.save_button.setText(_translate("Dialog", "Save", None))
 

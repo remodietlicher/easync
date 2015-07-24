@@ -11,6 +11,19 @@ class DraggableLine:
         self.collect = False
         self.selected = []
 
+        ax = self.line.figure.add_subplot(111)
+        self.markers, = ax.plot([],[],'o',color='r')
+
+    def select_all(self):
+        self.selected = [i for i, val in enumerate(self.line.get_xdata())]
+        self.collect = True
+        self.update_markers()
+
+    def deselect_all(self):
+        self.selected = []
+        self.collect = False
+        self.update_markers()
+
     def connect(self):
         'connect to all the events we need'
         self.cidpick = self.line.figure.canvas.mpl_connect(
@@ -31,18 +44,21 @@ class DraggableLine:
         self.line.figure.canvas.mpl_disconnect(self.cidmotion)
 
     def on_key_press(self, event):
-        if(event.key == 'shift'):
+        print 'pressing key: %s'%(event.key)
+        if(event.key == 'control'):
             self.collect = True
 
     def on_key_release(self, event):
-        if(event.key == 'shift'):
+        print 'releasing key: %s'%(event.key)
+        if(event.key == 'control'):
             self.collect = False
 
 
     def on_pick(self, event):
         ind = event.ind
         if(self.collect):
-            self.selected.append(ind)
+            self.selected = np.union1d(self.selected, ind)
+            print self.selected
         else:
             self.selected = ind
         xdata = self.line.get_xdata()
@@ -50,8 +66,7 @@ class DraggableLine:
 
         x0 = copy(xdata[self.selected])
         y0 = copy(ydata[self.selected])
-
-        self.update_view()
+        self.update_markers()
 
         self.pick = x0, y0, event.mouseevent.xdata, event.mouseevent.ydata
 
@@ -73,6 +88,7 @@ class DraggableLine:
                 ydata[idx] = y0[i] + dy
 
         self.line.set_data(xdata, ydata)
+        self.update_markers()
 
         self.line.figure.canvas.draw()
 
@@ -82,4 +98,11 @@ class DraggableLine:
         self.line.figure.canvas.draw()
 
     def update_markers(self):
-        return
+        ax = self.line.figure.add_subplot(111)
+        xdata = self.line.get_xdata()
+        ydata = self.line.get_ydata()
+
+        xmarked = xdata[self.selected]
+        ymarked = ydata[self.selected]
+        self.markers.set_data(xmarked, ymarked)
+        self.line.figure.canvas.draw()

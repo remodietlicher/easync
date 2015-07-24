@@ -76,7 +76,7 @@ class mainWindow(Ui_MainWindow):
         self.var3d_list.clear()
         if(self.data):
             self.data.close()
-        self.data = Dataset(str(self.filename), mode='r')
+        self.data = Dataset(str(self.filename), mode='a')
         keys = [key for key in self.data.variables]
         keys = sorted(keys)
         for key in keys:

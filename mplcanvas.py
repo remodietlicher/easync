@@ -16,6 +16,8 @@ class MplCanvas(FigureCanvas):
 
         FigureCanvas.__init__(self, self.fig)
         self.setParent(parent)
+        self.setFocusPolicy( QtCore.Qt.ClickFocus )
+        self.setFocus()
 
     def plot_figure(self):
         pass
@@ -58,10 +60,14 @@ class modifyCanvas(MplCanvas):
         self.dl = None
 
     def plot_figure(self, data, tmst):
+        self.ax.cla()
         if(data.hasHeightVal and data.hasTimeVal):
+            print data.var.shape
             X = data.var[tmst]
             Y = data.height
-            self.ax.invert_yaxis()
+            if(not self.ax.yaxis_inverted()):
+                self.ax.invert_yaxis()
             line, = self.ax.plot(X, Y, 'o-', picker=5)
             self.dl = DraggableLine(line, allowY=False)
             self.dl.connect()
+            self.draw()
