@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'guiCreator/plotdialog.ui'
 #
-# Created: Mon Jul 13 19:40:22 2015
+# Created: Fri Jul 24 08:20:14 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!

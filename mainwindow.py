@@ -5,6 +5,7 @@ import os
 from cmainwindow import Ui_MainWindow
 from plotdialog import plotDialog
 from configdialog import configDialog
+from modifydialog import modifyDialog
 from datahandler import dataHandler
 from str2eq import evalEq, getVars
 
@@ -28,6 +29,7 @@ class mainWindow(Ui_MainWindow):
         self.file_button.clicked.connect(self.setupVariables)
         self.filename_field.returnPressed.connect(self.setupVariables)
         self.plot_button.clicked.connect(self.popPlotDialog)
+        self.mod_data_button.clicked.connect(self.popModDialog)
         self.specialvar_button.clicked.connect(self.addSpecialVar)
 
     def getFilename(self):
@@ -102,6 +104,17 @@ class mainWindow(Ui_MainWindow):
         #if(len(varnames3d) > 0):
         #    self.makeDialog(varnames3d)
 
+    def popModDialog(self):
+        varnames1d = self.textFromListWidget(self.var1d_list)
+        varnames2d = self.textFromListWidget(self.var2d_list)
+        varnames3d = self.textFromListWidget(self.var3d_list)
+        varnames = varnames1d + varnames2d + varnames3d
+        if(len(varnames) != 1):
+            print 'invalid number of variables chosen: %s, must be 1'%(len(varnames))
+            return
+        else:
+            self.makeModDialog(varnames[0])
+
     def textFromListWidget(self, lwidget, allNames=False):
         varnames = []
         for i in range(lwidget.count()):
@@ -123,6 +136,13 @@ class mainWindow(Ui_MainWindow):
         cdialog = configDialog(pdialog)
         cdialog.setWindowTitle('Configure')
         cdialog.show()
+
+    def makeModDialog(self, varname):
+        dh = dataHandler(self.data, str(varname))
+
+        moddialog = modifyDialog(dh)
+        moddialog.setWindowTitle('Modify netCDF data')
+        moddialog.show()
 
 
 if __name__ == '__main__':

@@ -19,4 +19,5 @@ HEADERS  += mainwindow.h
 
 FORMS    += mainwindow.ui \
     plotdialog.ui \
-    configdialog.ui
+    configdialog.ui \
+    modifydialog.ui

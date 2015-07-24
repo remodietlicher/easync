@@ -5,6 +5,7 @@ import os
 from cmainwindow import Ui_MainWindow
 from cplotdialog import Ui_PlotDialog
 from plothandler import plotHandler
+from mplcanvas import dataCanvas
 from copy import copy
 
 from netCDF4 import Dataset
@@ -12,55 +13,10 @@ import numpy as np
 
 from PyQt4 import QtCore, QtGui
 
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolbar
-import matplotlib.pyplot as plt
 
 progname = os.path.basename(sys.argv[0])
 progversion = "0.1"
-
-class MplCanvas(FigureCanvas):
-    def __init__(self, parent=None):
-        self.fig = plt.figure()
-        self.fig.subplots_adjust(hspace=0.5)
-
-        self.ph = plotHandler(self.fig)
-
-        FigureCanvas.__init__(self, self.fig)
-        self.setParent(parent)
-
-    def plot_figure(self):
-        pass
-
-class dataCanvas(MplCanvas):
-    def __init__(self, dialog=None, parent=None):
-        self.dialog = dialog
-        MplCanvas.__init__(self, parent)
-    def plot_figure(self, data, nAxes, current, plotType):
-        self.ph.makeAxes(nAxes, current)
-        xlabel = ''
-        ylabel = ''
-        zlabel = ''
-        print 'plotting %s...'%(data.longname)
-        if(plotType == 'TIME'):
-            xlabel = data.timeunit
-            ylabel = data.varunit
-            zlabel = ''
-            self.ph.timeline(data.time, data.getTimeValue(), xlabel, ylabel, data.varlabel)
-        elif(plotType == 'HEIGHT'):
-            xlabel = data.varunit
-            ylabel = data.heightunit
-            zlabel = ''
-            self.ph.xzplot(data.getHeightValue(), data.height, xlabel, ylabel, data.varlabel)
-        elif(plotType == 'TIMEHEIGHT'):
-            xlabel = data.timeunit
-            ylabel = data.heightunit
-            zlabel = data.varunit
-            self.ph.timeline2d(data.time, data.height, data.getTimeHeightMatrix(), xlabel, ylabel, zlabel)
-        else:
-            print 'unknown dimensions of input'
-        self.ph.setTitle(data.longname)
-        self.draw()
 
 class plotDialog(Ui_PlotDialog):
     def __init__(self, data):

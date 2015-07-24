@@ -36,7 +36,6 @@ def getVars(string):
         pos, var = getNext(string, pos)
         if var not in ops:
             varlist.append(var)
-    print varlist
     return varlist
 
 def evalEq(string, varDict):
