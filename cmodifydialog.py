@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'guiCreator/modifydialog.ui'
 #
-# Created: Fri Jul 24 16:09:50 2015
+# Created: Fri Jul 24 16:13:11 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -42,9 +42,9 @@ class Ui_ModifyDialog(QtGui.QDialog):
         self.horizontalLayout_3.setObjectName(_fromUtf8("horizontalLayout_3"))
         self.horizontalLayout = QtGui.QHBoxLayout()
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
-        self.use_for_all_timesteps_checkbox = QtGui.QPushButton(self.optionsWidget)
-        self.use_for_all_timesteps_checkbox.setObjectName(_fromUtf8("use_for_all_timesteps_checkbox"))
-        self.horizontalLayout.addWidget(self.use_for_all_timesteps_checkbox)
+        self.use_for_all_timesteps_button = QtGui.QPushButton(self.optionsWidget)
+        self.use_for_all_timesteps_button.setObjectName(_fromUtf8("use_for_all_timesteps_button"))
+        self.horizontalLayout.addWidget(self.use_for_all_timesteps_button)
         self.select_all_checkbox = QtGui.QCheckBox(self.optionsWidget)
         self.select_all_checkbox.setObjectName(_fromUtf8("select_all_checkbox"))
         self.horizontalLayout.addWidget(self.select_all_checkbox)
@@ -83,7 +83,7 @@ class Ui_ModifyDialog(QtGui.QDialog):
 
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(_translate("Dialog", "Dialog", None))
-        self.use_for_all_timesteps_checkbox.setText(_translate("Dialog", "Use for all Timesteps", None))
+        self.use_for_all_timesteps_button.setText(_translate("Dialog", "Use for all Timesteps", None))
         self.select_all_checkbox.setText(_translate("Dialog", "select all", None))
         self.save_button.setText(_translate("Dialog", "Save", None))
 
