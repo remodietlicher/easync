@@ -1,15 +1,19 @@
-Info
+INFO
 ----
 Author: Remo Dietlicher
 Correspondence: remo.dietlicher@env.ethz.ch
 
-Description
+DESCRIPTION
 -----------
 This is a simple GUI to visualize netCDF files. It currently handles
 only SCM data (variable vs time, variable vs height, time-height matrix).
 It is easily extendable to handle global data.
 
-Usage
+CAUTION
+-------
+Use only on copies of your valuable data. The program opens the netCDF files with read and write access. It should make copies of the data whenever you are manipulating them and only write to the file when asked to do so, but it's not completely debugged so handle with care.
+
+USAGE
 -----
 To load the GUI:
    >> python mainwindow.py
@@ -23,7 +27,7 @@ To load the GUI:
 4) [Optional] Modify/Save your plot using the configuration window.
 
 
-Requirements
+REQUIREMENTS
 ------------
 Python,
 Python modules: PyQt, numpy, matplotlib.pyplot
