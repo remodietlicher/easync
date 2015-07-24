@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'guiCreator/modifydialog.ui'
 #
-# Created: Fri Jul 24 10:56:25 2015
+# Created: Fri Jul 24 16:09:50 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -42,7 +42,7 @@ class Ui_ModifyDialog(QtGui.QDialog):
         self.horizontalLayout_3.setObjectName(_fromUtf8("horizontalLayout_3"))
         self.horizontalLayout = QtGui.QHBoxLayout()
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
-        self.use_for_all_timesteps_checkbox = QtGui.QCheckBox(self.optionsWidget)
+        self.use_for_all_timesteps_checkbox = QtGui.QPushButton(self.optionsWidget)
         self.use_for_all_timesteps_checkbox.setObjectName(_fromUtf8("use_for_all_timesteps_checkbox"))
         self.horizontalLayout.addWidget(self.use_for_all_timesteps_checkbox)
         self.select_all_checkbox = QtGui.QCheckBox(self.optionsWidget)
@@ -54,6 +54,7 @@ class Ui_ModifyDialog(QtGui.QDialog):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.tmst_spinbox.sizePolicy().hasHeightForWidth())
         self.tmst_spinbox.setSizePolicy(sizePolicy)
+        self.tmst_spinbox.setMaximum(9999999)
         self.tmst_spinbox.setObjectName(_fromUtf8("tmst_spinbox"))
         self.horizontalLayout.addWidget(self.tmst_spinbox)
         self.save_button = QtGui.QPushButton(self.optionsWidget)

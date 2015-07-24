@@ -18,7 +18,7 @@ class modifyDialog(Ui_ModifyDialog):
 
         self.canvas.plot_figure(data, 0)
         
-        self.use_for_all_timesteps_checkbox.stateChanged.connect(self.applyToAllTmsts)
+        self.use_for_all_timesteps_button.clicked.connect(self.applyToAllTmsts)
         self.select_all_checkbox.stateChanged.connect(self.selectAllPOnLine)
         self.tmst_spinbox.valueChanged.connect(self.loadTmst)
         self.save_button.clicked.connect(self.saveNetCDF)
