@@ -44,13 +44,13 @@ class plotDialog(Ui_PlotDialog):
         self.updateAxesCombobox()
 
     def setActiveAx(self, ax=None):
-        if(not ax):
+        print 'setting ax: %s'%(ax)
+        if(isinstance(ax, int)):
             self.activeAxId = self.configDialog.getActiveAxId()
-            print 'active axis=',self.activeAxId
-            self.activeAx = self.canvas.fig.add_subplot(self.nAxes,1,self.activeAxId+1)
         else:
-            self.axtiveAx = ax
             self.activeAxId = self.ax2AxId[ax]
+        print 'active axis=', self.activeAxId
+        self.activeAx = self.canvas.fig.add_subplot(self.nAxes,1,self.activeAxId+1)
         self.updateAvailablePlots()
         self.updateConfig()
          
@@ -78,6 +78,7 @@ class plotDialog(Ui_PlotDialog):
         self.configDialog.setAxes(xlabel, ylabel, zlabel, title)
         self.configDialog.setPlotType(self.plotTypes[self.activeAxId])
         self.configDialog.setLabels(labels)
+        self.configDialog.setActiveAxId(self.activeAxId)
 
     def updateAvailablePlots(self):
         self.configDialog.plot_comb.blockSignals(True)

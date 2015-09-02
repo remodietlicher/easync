@@ -22,7 +22,7 @@ class configDialog(Ui_ConfigDialog):
         
         plotDialog.registerConfigDialog(self)
 
-        self.time = 0
+        self.time = 0.0
 
     def setSliceTime(self, time):
         self.time = time
@@ -43,6 +43,11 @@ class configDialog(Ui_ConfigDialog):
 
     def getActiveAxId(self):
         return self.activeax_comb.currentIndex()
+
+    def setActiveAxId(self, idx):
+        self.activeax_comb.blockSignals(True)
+        self.activeax_comb.setCurrentIndex(idx)
+        self.activeax_comb.blockSignals(False)
 
     def setLabels(self, labels):
         self.legend_list.clear()

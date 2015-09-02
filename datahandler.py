@@ -63,7 +63,7 @@ class dataHandler:
         self.ndim = len(self.var.shape)
 
     def getNearestTimeID(self, t):
-        idx = (np.abs(self.time - t)).argmin()
+        idx = (np.abs(self.time[:] - t)).argmin()
         return idx
 
     def restore(self):
