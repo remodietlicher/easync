@@ -4,7 +4,7 @@ from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
 
-from util import DraggableLine
+from util import DraggableLine, ZoomableFigure
 from plothandler import plotHandler
 
 class MplCanvas(FigureCanvas):
@@ -26,6 +26,8 @@ class dataCanvas(MplCanvas):
     def __init__(self, dialog=None, parent=None):
         self.dialog = dialog
         MplCanvas.__init__(self, parent)
+        self.zfig = ZoomableFigure(self.dialog, self.ph)
+        self.zfig.connect()
     def plot_figure(self, data, nAxes, current, plotType):
         self.ph.makeAxes(nAxes, current)
         xlabel = ''
@@ -47,6 +49,12 @@ class dataCanvas(MplCanvas):
             ylabel = data.heightunit
             zlabel = data.varunit
             self.ph.timeline2d(data.time, data.height, data.getTimeHeightMatrix(), xlabel, ylabel, zlabel)
+        elif(plotType == 'TIMESLICE'):
+            xlabel = data.varunit
+            ylabel = data.heightunit
+            zlabel = ''
+            time = self.dialog.configDialog.time
+            self.ph.xzplot(data.getTimeSlice(time), data.height, xlabel, ylabel, data.varlabel)
         else:
             print 'unknown dimensions of input'
         self.ph.setTitle(data.longname)

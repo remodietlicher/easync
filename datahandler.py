@@ -62,6 +62,10 @@ class dataHandler:
         self.var = np.sum(self.var, axis=0)/self.var.shape[0]
         self.ndim = len(self.var.shape)
 
+    def getNearestTimeID(self, t):
+        idx = (np.abs(self.time - t)).argmin()
+        return idx
+
     def restore(self):
         self.var = copy(self.varcpy)
         self.ndim = len(self.var.shape)
@@ -85,6 +89,13 @@ class dataHandler:
     def getTimeHeightMatrix(self):
         if(self.hasHeightVal and self.hasTimeVal):
             return self.var
+        else:
+            return None
+
+    def getTimeSlice(self, time):
+        if(self.hasTimeVal and self.hasHeightVal):
+            idx = self.getNearestTimeID(time)
+            return self.var[idx]
         else:
             return None
 

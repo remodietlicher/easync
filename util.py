@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from plothandler import plotHandler
 from copy import copy
 
 class DraggableLine:
@@ -71,7 +72,6 @@ class DraggableLine:
         self.pick = x0, y0, event.mouseevent.xdata, event.mouseevent.ydata
 
     def on_motion(self, event):
-        'on motion we will move the rect if the mouse is over us'
         if self.pick is None: return
         if event.inaxes != self.line.axes: return
         x0, y0, xpick, ypick = self.pick
@@ -106,3 +106,26 @@ class DraggableLine:
         ymarked = ydata[self.selected]
         self.markers.set_data(xmarked, ymarked)
         self.line.figure.canvas.draw()
+
+class ZoomableFigure:
+    def __init__(self, dialog, plothandler):
+        self.plothandler = plothandler
+        self.dialog = dialog
+
+    def connect(self):
+        print 'connecting button_press_event'
+        self.ciddblclick = self.plothandler.fig.canvas.mpl_connect(
+             'button_press_event', self.on_dblclick)
+
+    def on_dblclick(self, event):
+        if event.dblclick:
+            print 'double clicking on: (%.1f, %.1f)'%(event.xdata, event.ydata)
+            ax = event.inaxes
+            time = event.xdata
+            self.dialog.setActiveAx(ax=ax)
+            print 'got: ax=%s, time=%s'%(ax, time)
+            self.dialog.configDialog.setSliceTime(time)
+            self.dialog.configDialog.setPlotType('TIMESLICE')
+            self.dialog.changePlotType()
+        
+        

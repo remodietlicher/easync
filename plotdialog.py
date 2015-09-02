@@ -32,6 +32,8 @@ class plotDialog(Ui_PlotDialog):
         self.activeAx = self.canvas.fig.add_subplot(self.nAxes,1,self.activeAxId+1)
         toolbar = NavigationToolbar(self.canvas, self)
 
+        self.ax2AxId = {self.canvas.fig.add_subplot(self.nAxes,1,i+1) : i for i in range(self.nAxes)}
+
         self.plotLayout.addWidget(toolbar)
         self.plotLayout.addWidget(self.canvas)
 
@@ -41,10 +43,14 @@ class plotDialog(Ui_PlotDialog):
         self.updateConfig()
         self.updateAxesCombobox()
 
-    def setActiveAx(self):
-        self.activeAxId = self.configDialog.getActiveAxId()
-        print 'active axis=',self.activeAxId
-        self.activeAx = self.canvas.fig.add_subplot(self.nAxes,1,self.activeAxId+1)
+    def setActiveAx(self, ax=None):
+        if(not ax):
+            self.activeAxId = self.configDialog.getActiveAxId()
+            print 'active axis=',self.activeAxId
+            self.activeAx = self.canvas.fig.add_subplot(self.nAxes,1,self.activeAxId+1)
+        else:
+            self.axtiveAx = ax
+            self.activeAxId = self.ax2AxId[ax]
         self.updateAvailablePlots()
         self.updateConfig()
          
@@ -89,6 +95,9 @@ class plotDialog(Ui_PlotDialog):
         if(self.data[self.activeAxId].hasTimeVal and self.data[self.activeAxId].hasHeightVal):
             self.configDialog.plot_comb.addItem('TIMEHEIGHT')
             self.configDialog.plotToCBID.update({'TIMEHEIGHT':cnt})
+            cnt += 1
+            self.configDialog.plot_comb.addItem('TIMESLICE')
+            self.configDialog.plotToCBID.update({'TIMESLICE':cnt})          
             cnt += 1
         self.configDialog.plot_comb.blockSignals(False)
         
@@ -141,7 +150,7 @@ class plotDialog(Ui_PlotDialog):
         self.plotTypes[self.activeAxId] = newType
         self.canvas.plot_figure(self.data[self.activeAxId], self.nAxes, self.activeAxId, self.configDialog.getPlotType())
         cb = self.canvas.ph.axcb[self.activeAxId]
-        if(cb and (newType == 'TIME' or newType == 'HEIGHT')):
+        if(cb and (newType == 'TIME' or newType == 'HEIGHT' or newType == 'TIMESLICE')):
             cb.remove()
             self.canvas.ph.axcb[self.activeAxId] = None
             self.canvas.fig.subplots_adjust(right=0.9)

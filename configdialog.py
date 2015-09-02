@@ -22,19 +22,24 @@ class configDialog(Ui_ConfigDialog):
         
         plotDialog.registerConfigDialog(self)
 
+        self.time = 0
+
+    def setSliceTime(self, time):
+        self.time = time
+
     def setPlotType(self, plotType):
         self.plot_comb.blockSignals(True)
         self.plot_comb.setCurrentIndex(self.plotToCBID[str(plotType)])
         self.plot_comb.blockSignals(False)
+
+    def getPlotType(self):
+        return self.plot_comb.currentText()
 
     def setAxes(self, xlabel, ylabel, zlabel, title):
         self.xlabel_field.setText(xlabel)
         self.ylabel_field.setText(ylabel)
         self.zlabel_field.setText(zlabel)
         self.title_field.setText(title)
-
-    def getPlotType(self):
-        return self.plot_comb.currentText()
 
     def getActiveAxId(self):
         return self.activeax_comb.currentIndex()

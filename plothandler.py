@@ -17,6 +17,9 @@ class plotHandler:
         if(nAxes==1):
             self.ax.hold(True)
 
+    def setAxes(self, ax):
+        self.ax = ax
+
     def setTitle(self, title):
         self.ax.set_title(title)
 
