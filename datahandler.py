@@ -74,7 +74,7 @@ class dataHandler:
         if(self.hasTimeVal and not self.hasHeightVal):
             return self.var
         elif(self.hasTimeVal and self.hasHeightVal):
-            return np.sum(self.var, axis=1)/self.var.shape[1]
+            return np.sum(self.var, axis=1)#/self.var.shape[1]
         else:
             return None
 
@@ -82,7 +82,7 @@ class dataHandler:
         if(self.hasHeightVal and not self.hasTimeVal):
             return self.var
         elif(self.hasTimeVal and self.hasHeightVal):
-            return np.sum(self.var, axis=0)/self.var.shape[0]
+            return np.sum(self.var, axis=0)#/self.var.shape[0]
         else:
             return None
 

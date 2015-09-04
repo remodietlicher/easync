@@ -154,7 +154,7 @@ class plotDialog(Ui_PlotDialog):
         if(cb and (newType == 'TIME' or newType == 'HEIGHT' or newType == 'TIMESLICE')):
             cb.remove()
             self.canvas.ph.axcb[self.activeAxId] = None
-            self.canvas.fig.subplots_adjust(right=0.9)
+            #self.canvas.fig.subplots_adjust(right=0.9)
         self.canvas.draw()
         self.updateConfig()
 

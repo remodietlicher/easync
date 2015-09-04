@@ -29,12 +29,17 @@ class plotHandler:
         self.ax.set_xlabel(xlabel)
         self.ax.set_ylabel(ylabel)
         self.ax.plot(X, Y, label=varlabel)
-        #ax.set_ylim(ymin=zbot,ymax=ztop)
-        #ax.set_xlim(xmin=np.min(self.var), xmax=np.max(self.var))
         labels = [tick.label for tick in self.ax.xaxis.get_major_ticks()[:]]
         for label in labels:
             label.set_rotation('vertical')
         plt.legend()
+        self.ax.set_xlim(np.min(X), np.max(X))
+        # Ugly hack to 'identify' model levels on Y axis
+        if np.sum(Y%1)==0:
+            self.ax.set_ylim(top=np.min(Y), bottom=np.max(Y))
+            print 'identified integer Y-axis. Assuming model levels'
+        else:
+            self.ax.set_ylim(top=np.max(Y), bottom=np.min(Y))
 
     def timeline(self, X, Y, xlabel, ylabel, varlabel):
         if(self.ax.yaxis_inverted()):
@@ -46,6 +51,7 @@ class plotHandler:
         yavg = ytot / Y.shape[0]
         #self.ax.set_title('integral=%f, average=%f'%(ytot, yavg))
         self.ax.axhline(yavg, color='r', linestyle=':')
+        self.ax.set_xlim(np.min(X), np.max(X))
         plt.legend()
 
     def timeline2d(self, X, Y, Z, xlabel, ylabel, zlabel):
