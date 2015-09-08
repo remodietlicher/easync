@@ -29,6 +29,14 @@ class modifyDialog(Ui_ModifyDialog):
     def applyToAllTmsts(self):
         self.data.var[:,:] = self.canvas.dl.line.get_xdata()
 
+    def applySelectedToAllTmsts(self):
+        selected = self.canvas.dl.selected
+        self.data.var[:,selected] = self.canvas.dl.line.get_xdata()[selected]
+
+    def applyChangeToAllTmsts(self):
+        diff = self.data.var[:,:] - self.canvas.dl.line.get_xdata()
+        self.data.var[:,:] += diff
+
     def loadTmst(self):
         tmst = self.tmst_spinbox.value()
         tmin = 0
