@@ -4,6 +4,7 @@ MAIN='mainwindow'
 PLOT='plotdialog'
 CONF='configdialog'
 MOD='modifydialog'
+RH='humiditycreator'
 PRE='c'
 
 pyuic4 guiCreator/$MAIN.ui > $PRE$MAIN.py

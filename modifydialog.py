@@ -9,6 +9,7 @@ class modifyDialog(Ui_ModifyDialog):
     def __init__(self, data):
         Ui_ModifyDialog.__init__(self)
         self.data = data
+        self.activeAx = None
 
         self.canvas = modifyCanvas(self)
         toolbar = NavigationToolbar(self.canvas, parent=self)
@@ -25,7 +26,8 @@ class modifyDialog(Ui_ModifyDialog):
         self.save_button.clicked.connect(self.saveNetCDF)
 
     def saveNetCDF(self):
-        self.data.writeVariableToFile()
+        for d in self.data:
+            d.writeVariableToFile()
 
     def applyCopy(self):
         if(self.apply_selection_cb.isChecked()):
@@ -40,25 +42,33 @@ class modifyDialog(Ui_ModifyDialog):
             self.applyChangeToAllTmsts()
 
     def applyToAllTmsts(self):
-        self.data.var[:,:] = self.canvas.dl.line.get_xdata()
+        for d in self.data:
+            dl = self.canvas.dlDict[d]
+            d.var[:,:] = dl.line.get_xdata()
 
     def applySelectedToAllTmsts(self):
-        selected = self.canvas.dl.selected
-        self.data.var[:,selected] = self.canvas.dl.line.get_xdata()[selected]
+        for d in data:
+            dl = self.canvas.dlDict[d]
+            selected = dl.selected
+            d.var[:,selected] = dl.line.get_xdata()[selected]
 
     def applySelectedChangeToAllTmsts(self):
-        selected = self.canvas.dl.selected
-        diff = self.canvas.dl.line.get_xdata()[selected] - self.data.var[:,selected]
-        self.data.var[:,selected] += diff
+        for d in self.data:
+            dl = self.canvas.dlDict[d]
+            selected = dl.selected
+            diff = dl.line.get_xdata()[selected] - d.var[:,selected]
+            d.var[:,selected] += diff
 
     def applyChangeToAllTmsts(self):
-        diff = self.canvas.dl.line.get_xdata() - self.data.var[:,:]
-        self.data.var[:,:] += diff
+        for d in self.data:
+            dl = self.canvas.dlDict[d]
+            diff = dl.line.get_xdata() - d.var[:,:]
+            d.var[:,:] += diff
 
     def loadTmst(self):
         tmst = self.tmst_spinbox.value()
         tmin = 0
-        tmax = self.data.var.shape[0]-1
+        tmax = self.data[0].var.shape[0]-1
         if(tmst < tmin):
             print 'timestep must not be negative: %s'%(tmst)
             self.tmst_spinbox.setValue(tmin)
@@ -69,9 +79,10 @@ class modifyDialog(Ui_ModifyDialog):
             self.canvas.plot_figure(self.data, tmst)
 
     def selectAllPOnLine(self):
+        dl = self.canvas.getActiveDl()
         if(self.select_all_checkbox.isChecked()):
-            if(self.canvas.dl):
+            if(dl):
                 print 'selecting all'
-                self.canvas.dl.select_all()
+                dl.select_all()
         else:
-            self.canvas.dl.deselect_all()
+            dl.deselect_all()

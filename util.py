@@ -4,16 +4,16 @@ from plothandler import plotHandler
 from copy import copy
 
 class DraggableLine:
-    def __init__(self, line, allowX=True, allowY=True):
+    def __init__(self, ax, line, allowX=True, allowY=True):
         self.line = line
+        self.ax = ax
         self.pick = None
         self.allowX = allowX
         self.allowY = allowY
         self.collect = False
         self.selected = []
-
-        ax = self.line.figure.add_subplot(111)
-        self.markers, = ax.plot([],[],'o',color='r')
+        
+        self.markers, = self.ax.plot([],[],'o',color='r')
 
     def select_all(self):
         self.selected = [i for i, val in enumerate(self.line.get_xdata())]
@@ -98,7 +98,6 @@ class DraggableLine:
         self.line.figure.canvas.draw()
 
     def update_markers(self):
-        ax = self.line.figure.add_subplot(111)
         xdata = self.line.get_xdata()
         ydata = self.line.get_ydata()
 

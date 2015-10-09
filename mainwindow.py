@@ -32,6 +32,7 @@ class mainWindow(Ui_MainWindow):
         self.plot_button.clicked.connect(self.popPlotDialog)
         self.mod_data_button.clicked.connect(self.popModDialog)
         self.specialvar_button.clicked.connect(self.addSpecialVar)
+        self.humidity_button.clicked.connect(self.makeHumCreatorDialog)
 
     def getFilename(self):
         self.filename = QtGui.QFileDialog.getOpenFileName(self, 'File Browser')
@@ -110,11 +111,11 @@ class mainWindow(Ui_MainWindow):
         varnames2d = self.textFromListWidget(self.var2d_list)
         varnames3d = self.textFromListWidget(self.var3d_list)
         varnames = varnames1d + varnames2d + varnames3d
-        if(len(varnames) != 1):
-            print 'invalid number of variables chosen: %s, must be 1'%(len(varnames))
+        if(len(varnames) <= 0):
+            print 'invalid number of variables chosen: %s, must be >=1'%(len(varnames))
             return
         else:
-            self.makeModDialog(varnames[0])
+            self.makeModDialog(varnames)
 
     def textFromListWidget(self, lwidget, allNames=False):
         varnames = []
@@ -126,11 +127,11 @@ class mainWindow(Ui_MainWindow):
         return varnames
 
     def makeDialog(self, varnames):
-        data = []
+        datahandlers = []
         for name in varnames:
             dh = dataHandler(self.data, str(name))
-            data.append(dh)
-        pdialog = plotDialog(data)
+            datahandlers.append(dh)
+        pdialog = plotDialog(datahandlers)
         pdialog.setWindowTitle('Matplotlib Plot')
         pdialog.show()
 
@@ -138,10 +139,35 @@ class mainWindow(Ui_MainWindow):
         cdialog.setWindowTitle('Configure')
         cdialog.show()
 
-    def makeModDialog(self, varname):
-        dh = dataHandler(self.data, str(varname))
+    def makeModDialog(self, varnames):
+        datahandlers = []
+        for name in varnames:
+            dh = dataHandler(self.data, str(name))
+            datahandlers.append(dh)
 
-        moddialog = modifyDialog(dh)
+        moddialog = modifyDialog(datahandlers)
+        moddialog.setWindowTitle('Modify netCDF data')
+        moddialog.show()
+
+    def makeHumCreatorDialog(self):
+        datahandlers = []
+        varnames = ['q', 't']
+        keys = [key for key in self.data.variables]
+        print keys
+        if(not 'relhum' in keys):
+            rhdata = self.data.createVariable('relhum', np.dtype('float32'), ('time', 'nlev', 'lat', 'lon'))
+            rhdata.setncattr('long_name', 'relative humidity')
+            rhdata[:] = 0.0
+        else:
+            print 'relhum already exists!'
+        varnames += ['relhum']
+
+        for name in varnames:
+            print 'opening %s. Do we have it?! %s'%(name, name in keys)
+            dh = dataHandler(self.data, str(name))
+            datahandlers.append(dh)
+
+        moddialog = modifyDialog(datahandlers)
         moddialog.setWindowTitle('Modify netCDF data')
         moddialog.show()
 

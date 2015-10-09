@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'guiCreator/mainwindow.ui'
 #
-# Created: Fri Oct  9 06:52:59 2015
+# Created: Fri Oct  9 13:24:10 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -110,9 +110,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.plot_button = QtGui.QPushButton(self.centralWidget)
         self.plot_button.setObjectName(_fromUtf8("plot_button"))
         self.gridLayout_2.addWidget(self.plot_button, 1, 1, 1, 1)
-        self.qfroms_button = QtGui.QPushButton(self.centralWidget)
-        self.qfroms_button.setObjectName(_fromUtf8("qfroms_button"))
-        self.gridLayout_2.addWidget(self.qfroms_button, 2, 0, 1, 1)
+        self.humidity_button = QtGui.QPushButton(self.centralWidget)
+        self.humidity_button.setObjectName(_fromUtf8("humidity_button"))
+        self.gridLayout_2.addWidget(self.humidity_button, 2, 0, 1, 1)
         self.timescan_button = QtGui.QPushButton(self.centralWidget)
         self.timescan_button.setEnabled(False)
         self.timescan_button.setObjectName(_fromUtf8("timescan_button"))
@@ -136,6 +136,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.label_6.setText(_translate("MainWindow", "Forcing Files", None))
         self.mod_data_button.setText(_translate("MainWindow", "modify data", None))
         self.plot_button.setText(_translate("MainWindow", "show plot", None))
-        self.qfroms_button.setText(_translate("MainWindow", "humidity creator", None))
+        self.humidity_button.setText(_translate("MainWindow", "humidity creator", None))
         self.timescan_button.setText(_translate("MainWindow", "time scan", None))
 

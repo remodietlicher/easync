@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'guiCreator/modifydialog.ui'
 #
-# Created: Fri Oct  9 06:53:00 2015
+# Created: Fri Oct  9 13:24:10 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!

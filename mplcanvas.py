@@ -11,6 +11,8 @@ class MplCanvas(FigureCanvas):
     def __init__(self, parent=None):
         self.fig = plt.figure()
         self.fig.subplots_adjust(hspace=0.5)
+        self.fig.canvas.mpl_connect('button_release_event', self.setActiveAx)
+        self.activeAx = None
 
         self.ph = plotHandler(self.fig)
 
@@ -21,6 +23,16 @@ class MplCanvas(FigureCanvas):
 
     def plot_figure(self):
         pass
+
+    def setActiveAx(self, event):
+        self.activeAx = event.inaxes
+
+    def connect(self):
+        self.cidrelease = self.fig.canvas.mpl_connect('button_release_event', self.setActiveAx)
+
+    def disconnect(self):
+        self.fig.canvas.mpl_disconnect(self.cidrelease)
+
 
 class dataCanvas(MplCanvas):
     def __init__(self, dialog=None, parent=None):
@@ -64,18 +76,34 @@ class dataCanvas(MplCanvas):
 class modifyCanvas(MplCanvas):
     def __init__(self, parent=None):
         MplCanvas.__init__(self, parent)
-        self.ax = self.fig.add_subplot(111)
-        self.dl = None
+        self.dlDict = {}
+        self.axDlDict = {}
+        self.fig.subplots_adjust(left=0.07, right=0.95)
 
     def plot_figure(self, data, tmst):
-        self.ax.cla()
-        if(data.hasHeightVal and data.hasTimeVal):
-            print data.var.shape
-            X = data.var[tmst]
-            Y = data.height
-            if(not self.ax.yaxis_inverted()):
-                self.ax.invert_yaxis()
-            line, = self.ax.plot(X, Y, 'o-', picker=5)
-            self.dl = DraggableLine(line, allowY=False)
-            self.dl.connect()
-            self.draw()
+        self.fig.clf()
+        N = len(data)
+        for i,d in enumerate(data):
+            if(d.hasHeightVal and d.hasTimeVal):
+                subplotID = 100+N*10+i+1
+                ax = self.fig.add_subplot(subplotID)
+                ax.set_title(d.longname)
+                ax.set_ylabel(d.heightunit)
+                ax.set_xlabel(d.varunit)
+                X = d.var[tmst]
+                Y = d.height
+                if(not ax.yaxis_inverted()):
+                    ax.invert_yaxis()
+                line, = ax.plot(X, Y, 'o-', picker=5)
+                dl = DraggableLine(ax, line, allowY=False)
+                self.dlDict.update({d : dl})
+                self.axDlDict.update({ax : dl})
+                dl.connect()
+                self.draw()
+        self.connect()
+        
+    def getActiveDl(self):
+        if(self.activeAx):
+            return self.axDlDict[self.activeAx]
+        else:
+            return None
