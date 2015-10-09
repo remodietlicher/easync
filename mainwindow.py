@@ -21,6 +21,7 @@ class mainWindow(Ui_MainWindow):
     def __init__(self):
         Ui_MainWindow.__init__(self)
         self.filename = ''
+        self.datapath = ''
         self.varnames = []
         self.data = None
 

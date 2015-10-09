@@ -1,5 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.colors import LogNorm
+
+llog = False
 
 class plotHandler:
     def __init__(self, fig):
@@ -67,7 +70,11 @@ class plotHandler:
         colormin = np.min(Z)
         
         self.ax.invert_yaxis()
-        p = self.ax.pcolor(XX, YY, Z, vmin=colormin, vmax=colormax)
+        if(llog):
+            Z[Z<0.0] = 1e-10
+            p = self.ax.pcolor(XX, YY, Z, norm=LogNorm(vmin=np.min(Z), vmax=np.max(Z)))
+        else:
+            p = self.ax.pcolor(XX, YY, Z, vmin=colormin, vmax=colormax)
         cb = self.fig.colorbar(p, ax=self.ax)
         cb.set_label(zlabel)
         self.axzlabel.update({self.currentAx:zlabel})

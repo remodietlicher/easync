@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'guiCreator/mainwindow.ui'
 #
-# Created: Fri Jul 24 16:13:11 2015
+# Created: Fri Oct  9 06:52:59 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -91,15 +91,33 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.specialvar_button.setObjectName(_fromUtf8("specialvar_button"))
         self.horizontalLayout_3.addWidget(self.specialvar_button)
         self.verticalLayout_2.addLayout(self.horizontalLayout_3)
-        self.horizontalLayout_2 = QtGui.QHBoxLayout()
-        self.horizontalLayout_2.setObjectName(_fromUtf8("horizontalLayout_2"))
+        self.line = QtGui.QFrame(self.centralWidget)
+        self.line.setFrameShape(QtGui.QFrame.HLine)
+        self.line.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line.setObjectName(_fromUtf8("line"))
+        self.verticalLayout_2.addWidget(self.line)
+        self.gridLayout_2 = QtGui.QGridLayout()
+        self.gridLayout_2.setObjectName(_fromUtf8("gridLayout_2"))
+        self.label_7 = QtGui.QLabel(self.centralWidget)
+        self.label_7.setObjectName(_fromUtf8("label_7"))
+        self.gridLayout_2.addWidget(self.label_7, 0, 1, 1, 1)
+        self.label_6 = QtGui.QLabel(self.centralWidget)
+        self.label_6.setObjectName(_fromUtf8("label_6"))
+        self.gridLayout_2.addWidget(self.label_6, 0, 0, 1, 1)
         self.mod_data_button = QtGui.QPushButton(self.centralWidget)
         self.mod_data_button.setObjectName(_fromUtf8("mod_data_button"))
-        self.horizontalLayout_2.addWidget(self.mod_data_button)
+        self.gridLayout_2.addWidget(self.mod_data_button, 1, 0, 1, 1)
         self.plot_button = QtGui.QPushButton(self.centralWidget)
         self.plot_button.setObjectName(_fromUtf8("plot_button"))
-        self.horizontalLayout_2.addWidget(self.plot_button)
-        self.verticalLayout_2.addLayout(self.horizontalLayout_2)
+        self.gridLayout_2.addWidget(self.plot_button, 1, 1, 1, 1)
+        self.qfroms_button = QtGui.QPushButton(self.centralWidget)
+        self.qfroms_button.setObjectName(_fromUtf8("qfroms_button"))
+        self.gridLayout_2.addWidget(self.qfroms_button, 2, 0, 1, 1)
+        self.timescan_button = QtGui.QPushButton(self.centralWidget)
+        self.timescan_button.setEnabled(False)
+        self.timescan_button.setObjectName(_fromUtf8("timescan_button"))
+        self.gridLayout_2.addWidget(self.timescan_button, 2, 1, 1, 1)
+        self.verticalLayout_2.addLayout(self.gridLayout_2)
         MainWindow.setCentralWidget(self.centralWidget)
 
         self.retranslateUi(MainWindow)
@@ -114,6 +132,10 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.label_4.setText(_translate("MainWindow", "Values 3D", None))
         self.label_5.setText(_translate("MainWindow", "special variable", None))
         self.specialvar_button.setText(_translate("MainWindow", "add", None))
+        self.label_7.setText(_translate("MainWindow", "Data Files", None))
+        self.label_6.setText(_translate("MainWindow", "Forcing Files", None))
         self.mod_data_button.setText(_translate("MainWindow", "modify data", None))
         self.plot_button.setText(_translate("MainWindow", "show plot", None))
+        self.qfroms_button.setText(_translate("MainWindow", "humidity creator", None))
+        self.timescan_button.setText(_translate("MainWindow", "time scan", None))
 
