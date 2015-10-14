@@ -136,7 +136,7 @@ class modifyCanvas(MplCanvas):
         spechum = None
         for dh in self.datahandlers:
             dl = self.dlDict[dh.longname]
-            # übergibt 'var' by reference, also wird mit dem plot auch
+            # ubergibt var by reference, also wird mit dem plot auch
             # gleich die variable beschrieben!
             dl.line.set_xdata(dh.var[tmst])
             dl.update_markers()
