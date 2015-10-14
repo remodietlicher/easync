@@ -3,6 +3,7 @@
 import sys
 import os
 from cmainwindow import Ui_MainWindow
+from humiditycreatorpopdialog import humidityCreatorPopDialog
 from plotdialog import plotDialog
 from configdialog import configDialog
 from modifydialog import modifyDialog
@@ -32,7 +33,7 @@ class mainWindow(Ui_MainWindow):
         self.plot_button.clicked.connect(self.popPlotDialog)
         self.mod_data_button.clicked.connect(self.popModDialog)
         self.specialvar_button.clicked.connect(self.addSpecialVar)
-        self.humidity_button.clicked.connect(self.makeHumCreatorDialog)
+        self.humidity_button.clicked.connect(self.makeHumCreatorPopDialog)
 
     def getFilename(self):
         self.filename = QtGui.QFileDialog.getOpenFileName(self, 'File Browser')
@@ -149,27 +150,10 @@ class mainWindow(Ui_MainWindow):
         moddialog.setWindowTitle('Modify netCDF data')
         moddialog.show()
 
-    def makeHumCreatorDialog(self):
-        datahandlers = []
-        varnames = ['q', 't']
-        keys = [key for key in self.data.variables]
-        print keys
-        if(not 'relhum' in keys):
-            rhdata = self.data.createVariable('relhum', np.dtype('float32'), ('time', 'nlev', 'lat', 'lon'))
-            rhdata.setncattr('long_name', 'relative humidity')
-            rhdata[:] = 0.0
-        else:
-            print 'relhum already exists!'
-        varnames += ['relhum']
-
-        for name in varnames:
-            print 'opening %s. Do we have it?! %s'%(name, name in keys)
-            dh = dataHandler(self.data, str(name))
-            datahandlers.append(dh)
-
-        moddialog = modifyDialog(datahandlers)
-        moddialog.setWindowTitle('Modify netCDF data')
-        moddialog.show()
+    def makeHumCreatorPopDialog(self):
+        self.popup = humidityCreatorPopDialog(self.data)
+        self.popup.setWindowTitle('Open file')
+        self.popup.show()
 
 
 if __name__ == '__main__':

@@ -4,17 +4,25 @@ from plothandler import plotHandler
 from copy import copy
 
 class DraggableLine:
-    def __init__(self, ax, line, allowX=True, allowY=True):
+    def __init__(self, ax, line, ltype):
         self.line = line
         self.ax = ax
         self.pick = None
-        self.allowX = allowX
-        self.allowY = allowY
         self.collect = False
         self.selected = []
+        self.dataChangeListeners = []
+        self.ltype = ltype
+        self.converter = None
         
         self.markers, = self.ax.plot([],[],'o',color='r')
 
+    def register_listener(self, listener):
+        self.dataChangeListeners.append(listener)
+
+    def forward_change(self, data):
+        for l in self.dataChangeListeners:
+            l.handle_change(data, self.ltype)
+        
     def select_all(self):
         self.selected = [i for i, val in enumerate(self.line.get_xdata())]
         self.collect = True
@@ -45,12 +53,10 @@ class DraggableLine:
         self.line.figure.canvas.mpl_disconnect(self.cidmotion)
 
     def on_key_press(self, event):
-        print 'pressing key: %s'%(event.key)
         if(event.key == 'control'):
             self.collect = True
 
     def on_key_release(self, event):
-        print 'releasing key: %s'%(event.key)
         if(event.key == 'control'):
             self.collect = False
 
@@ -59,7 +65,6 @@ class DraggableLine:
         ind = event.ind
         if(self.collect):
             self.selected = np.union1d(self.selected, ind)
-            print self.selected
         else:
             self.selected = ind
         xdata = self.line.get_xdata()
@@ -68,6 +73,7 @@ class DraggableLine:
         x0 = copy(xdata[self.selected])
         y0 = copy(ydata[self.selected])
         self.update_markers()
+        self.line.figure.canvas.draw()
 
         self.pick = x0, y0, event.mouseevent.xdata, event.mouseevent.ydata
 
@@ -76,26 +82,23 @@ class DraggableLine:
         if event.inaxes != self.line.axes: return
         x0, y0, xpick, ypick = self.pick
         dx = event.xdata - xpick
-        dy = event.ydata - ypick
 
         xdata = self.line.get_xdata()
-        ydata = self.line.get_ydata()
 
         for i,idx in enumerate(self.selected):
-            if(self.allowX):
                 xdata[idx] = x0[i] + dx
-            if(self.allowY):
-                ydata[idx] = y0[i] + dy
+        
+        self.update_data(xdata)
+        self.forward_change(xdata)
 
-        self.line.set_data(xdata, ydata)
+    def update_data(self, xdata):
+        self.line.set_xdata(xdata)
         self.update_markers()
-
         self.line.figure.canvas.draw()
 
     def on_release(self, event):
         'on release we reset the pick data'
         self.pick = None
-        self.line.figure.canvas.draw()
 
     def update_markers(self):
         xdata = self.line.get_xdata()
@@ -104,7 +107,6 @@ class DraggableLine:
         xmarked = xdata[self.selected]
         ymarked = ydata[self.selected]
         self.markers.set_data(xmarked, ymarked)
-        self.line.figure.canvas.draw()
 
 class ZoomableFigure:
     def __init__(self, dialog, plothandler):
@@ -126,5 +128,93 @@ class ZoomableFigure:
             self.dialog.configDialog.setSliceTime(time)
             self.dialog.configDialog.setPlotType('TIMESLICE')
             self.dialog.changePlotType()
+
+class HumidityConverter:
+    def __init__(self, pressure, temperature, spechum):
+        self.pressure = pressure
+        self.eps = 0.622
+        self.temperature = temperature
+        self.spechum = spechum
+        self.relhum = self.t_q_to_rh()
+        self.t_listeners = []
+        self.q_listeners = []
+        self.rh_listeners = []
+
+        self.qn = 'Specific humidity'
+        self.rhn = 'relative humidity'
+        self.tn = 'Temparature'
+
+    def set_profiles(self, temperature, spechum):
+        self.temperature = temperature
+        self.spechum = spechum
+        self.relhum = self.t_q_to_rh()
+
+    def register_listener(self, listener, ltype):
+        if(ltype == self.qn):
+            self.q_listeners.append(listener)
+        elif(ltype == self.rhn):
+            self.rh_listeners.append(listener)
+        elif(ltype == self.tn):
+            self.t_listeners.append(listener)
+
+    def handle_change(self, data, t):
+        if(t == self.tn):
+            self.set_temperature(data)
+        elif(t == self.rhn):
+            self.set_relhum(data)
+        elif(t == self.qn):
+            self.set_spechum(data)
+
+    def notify_temperature_listeners(self):
+        for l in self.t_listeners:
+            l.update_data(self.temperature)
+
+    def notify_relhum_listeners(self):
+        for l in self.rh_listeners:
+            l.update_data(self.relhum)
+
+    def notify_spechum_listeners(self):
+        for l in self.q_listeners:
+            l.update_data(self.spechum)
+
+    def set_temperature(self, temperature):
+        self.temperature = temperature
+        self.relhum = self.t_q_to_rh()
+        self.notify_relhum_listeners()
+
+    def set_relhum(self, relhum):
+        self.relhum = relhum
+        self.spechum = self.t_rh_to_q()
+        self.notify_spechum_listeners()
+
+    def set_spechum(self, spechum):
+        self.spechum = spechum
+        self.relhum = self.t_q_to_rh()
+        self.notify_relhum_listeners()
+
+    # Pa and K    
+    def magnus(self, T):
+        # k1 -> k3 for hPa and deg C
+        k1 = 6.1094
+        k2 = 17.625
+        k3 = 243.04
+        T0 = 273.16
+        return k1*100*np.exp(k2*(T-T0)/((T-T0)+k3))
+
+    def t_q_to_rh(self):
+        T = self.temperature
+        q = self.spechum
+        es = self.magnus(T)
+        w = q/(1-q)
+        e = w/(w+self.eps)*self.pressure
+        return e/es
+        
+    def t_rh_to_q(self):
+        T = self.temperature
+        rh = self.relhum
+        es = self.magnus(T)
+        e = rh*es
+        w = e*self.eps/(e+self.pressure)
+        return w/(w+1)
         
         

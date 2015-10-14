@@ -3,8 +3,9 @@ from PyQt4 import QtCore, QtGui
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
+import numpy as np
 
-from util import DraggableLine, ZoomableFigure
+from util import DraggableLine, ZoomableFigure, HumidityConverter
 from plothandler import plotHandler
 
 class MplCanvas(FigureCanvas):
@@ -74,16 +75,23 @@ class dataCanvas(MplCanvas):
 
 
 class modifyCanvas(MplCanvas):
-    def __init__(self, parent=None):
+    def __init__(self, humConverter=None, parent=None):
         MplCanvas.__init__(self, parent)
+        self.humConverter = humConverter
         self.dlDict = {}
         self.axDlDict = {}
         self.fig.subplots_adjust(left=0.07, right=0.95)
+        self.datahandlers = None
+        self.height = None
 
-    def plot_figure(self, data, tmst):
+    def plot_figure(self, datahandlers, tmst):
+        self.datahandlers = datahandlers
+        self.height = datahandlers[0].height
+        self.heightunit = datahandlers[0].heightunit
         self.fig.clf()
-        N = len(data)
-        for i,d in enumerate(data):
+        N = len(datahandlers)
+        if(self.humConverter): N += 1
+        for i,d in enumerate(datahandlers):
             if(d.hasHeightVal and d.hasTimeVal):
                 subplotID = 100+N*10+i+1
                 ax = self.fig.add_subplot(subplotID)
@@ -95,12 +103,58 @@ class modifyCanvas(MplCanvas):
                 if(not ax.yaxis_inverted()):
                     ax.invert_yaxis()
                 line, = ax.plot(X, Y, 'o-', picker=5)
-                dl = DraggableLine(ax, line, allowY=False)
-                self.dlDict.update({d : dl})
+                dl = DraggableLine(ax, line, d.longname)
+                if(self.humConverter):
+                    dl.register_listener(self.humConverter)
+                self.dlDict.update({d.longname : dl})
                 self.axDlDict.update({ax : dl})
                 dl.connect()
-                self.draw()
         self.connect()
+        if(self.humConverter):
+            subplotID = 100+N*10+N
+            ax = self.fig.add_subplot(subplotID)
+            ax.set_title(self.humConverter.rhn)
+            ax.set_ylabel(self.heightunit)
+            ax.set_xlabel('')
+            X = self.humConverter.relhum
+            Y = self.height
+            print 'relhum:', X.shape
+            print 'height:', Y.shape
+            ax.set_xlim(left=0, right=max(1.2, np.max(X)))
+            if(not ax.yaxis_inverted()):
+                ax.invert_yaxis()
+            line, = ax.plot(X, Y, 'o-', picker=5)
+            dl = DraggableLine(ax, line, self.humConverter.rhn)
+            dl.register_listener(self.humConverter)
+            self.dlDict.update({self.humConverter.rhn : dl})
+            self.axDlDict.update({ax : dl})
+            dl.connect()
+            self.connect_humidity()
+
+    def update_figure(self, tmst):
+        temperature = None
+        spechum = None
+        for dh in self.datahandlers:
+            dl = self.dlDict[dh.longname]
+            # übergibt 'var' by reference, also wird mit dem plot auch
+            # gleich die variable beschrieben!
+            dl.line.set_xdata(dh.var[tmst])
+            dl.update_markers()
+            if self.humConverter:
+                if(dh.longname == self.humConverter.tn):
+                    temperature = dh.var[tmst]
+                elif(dh.longname == self.humConverter.qn):
+                    spechum = dh.var[tmst]
+        if self.humConverter:
+            self.humConverter.set_profiles(temperature, spechum)
+            dl = self.dlDict[self.humConverter.rhn]
+            dl.line.set_xdata(self.humConverter.relhum)
+            dl.update_markers()
+        self.draw()
+        
+    def connect_humidity(self):
+        for k, v in self.dlDict.iteritems():
+            self.humConverter.register_listener(v, k)
         
     def getActiveDl(self):
         if(self.activeAx):
