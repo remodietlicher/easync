@@ -100,4 +100,5 @@ class dataHandler:
             return None
 
     def writeVariableToFile(self):
+        print 'writing "%s" to file...'%(self.longname)
         self.data.variables[self.varlabel][:] = self.var[:]

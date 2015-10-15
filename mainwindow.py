@@ -67,7 +67,7 @@ class mainWindow(Ui_MainWindow):
         self.plot_button.clicked.connect(self.popPlotDialog)
         self.mod_data_button.clicked.connect(self.popModDialog)
         self.specialvar_button.clicked.connect(self.addSpecialVar)
-        self.humidity_button.clicked.connect(self.makeHumCreatorDialog)
+        self.humidity_button.clicked.connect(self.popHumCreatorDialog)
 
     def getFilename(self):
         self.filename = QtGui.QFileDialog.getOpenFileName(self, 'File Browser')
@@ -134,12 +134,6 @@ class mainWindow(Ui_MainWindow):
         varnames = varnames1d + varnames2d + varnames3d
         if(len(varnames) > 0):
             self.makeDialog(varnames)
-        #if(len(varnames1d) > 0):
-        #    self.makeDialog(varnames1d)
-        #if(len(varnames2d) > 0):
-        #    self.makeDialog(varnames2d)
-        #if(len(varnames3d) > 0):
-        #    self.makeDialog(varnames3d)
 
     def popModDialog(self):
         varnames1d = self.textFromListWidget(self.var1d_list)
@@ -151,6 +145,13 @@ class mainWindow(Ui_MainWindow):
             return
         else:
             self.makeModDialog(varnames)
+
+    def popHumCreatorDialog(self):
+        varnames1d = self.textFromListWidget(self.var1d_list)
+        varnames2d = self.textFromListWidget(self.var2d_list)
+        varnames3d = self.textFromListWidget(self.var3d_list)
+        varnames = varnames1d + varnames2d + varnames3d
+        self.makeHumCreatorDialog(varnames)
 
     def textFromListWidget(self, lwidget, allNames=False):
         varnames = []
@@ -184,14 +185,15 @@ class mainWindow(Ui_MainWindow):
         moddialog.setWindowTitle('Modify netCDF data')
         moddialog.show()
 
-    def makeHumCreatorDialog(self):
+    def makeHumCreatorDialog(self, varnames):
         datahandlers = []
         
         # read in temperature and specific humidity from forcing file
         temperature = self.data.variables['t'][0,:]
         spechum = self.data.variables['q'][0,:]
 
-        varnames = ['q', 't']
+        varnames = list(set().union(varnames, ['q', 't']))
+        print varnames
         nlvl = 0
         for name in varnames:
             dh = dataHandler(self.data, str(name))
@@ -206,7 +208,7 @@ class mainWindow(Ui_MainWindow):
             print hyam
             print 'vct_b taken from file:'
             print hybm
-        elif(nlvl == 31):
+        if(nlvl == 31):
             hyam = hyam31
             hybm = hybm31
         elif(nlvl == 47):
@@ -223,7 +225,7 @@ class mainWindow(Ui_MainWindow):
             aps = 100000
 
         mlev = hyam+hybm*aps
-        # interpolate interface pressure to midlvl pressures to match T and q
+        # interpolate interface pressure to midlvl pressures to much T and q
         # this can be done more carefully, but it doesn't really matter for the
         # application, so it may be improved some time later.
         if(len(mlev)%2 == 0):
