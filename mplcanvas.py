@@ -12,8 +12,10 @@ class MplCanvas(FigureCanvas):
     def __init__(self, parent=None):
         self.fig = plt.figure()
         self.fig.subplots_adjust(hspace=0.5)
-        self.fig.canvas.mpl_connect('button_release_event', self.setActiveAx)
+        self.release_listeners = []
         self.activeAx = None
+
+        self.connect()
 
         self.ph = plotHandler(self.fig)
 
@@ -25,11 +27,19 @@ class MplCanvas(FigureCanvas):
     def plot_figure(self):
         pass
 
-    def setActiveAx(self, event):
+    def register_release_listener(self, listener):
+        self.release_listeners.append(listener)
+
+    def notify_release_listeners(self):
+        for l in self.release_listeners:
+            l.update_data()
+
+    def on_button_release(self, event):
         self.activeAx = event.inaxes
+        self.notify_release_listeners()
 
     def connect(self):
-        self.cidrelease = self.fig.canvas.mpl_connect('button_release_event', self.setActiveAx)
+        self.cidrelease = self.fig.canvas.mpl_connect('button_release_event', self.on_button_release)
 
     def disconnect(self):
         self.fig.canvas.mpl_disconnect(self.cidrelease)
@@ -83,6 +93,7 @@ class modifyCanvas(MplCanvas):
         self.fig.subplots_adjust(left=0.07, right=0.95)
         self.datahandlers = None
         self.height = None
+        self.release_listeners = []
 
     def plot_figure(self, datahandlers, tmst):
         self.datahandlers = datahandlers
@@ -105,7 +116,7 @@ class modifyCanvas(MplCanvas):
                 line, = ax.plot(X, Y, 'o-', picker=5)
                 dl = DraggableLine(ax, line, d.longname)
                 if(self.humConverter):
-                    dl.register_listener(self.humConverter)
+                    dl.register_move_listener(self.humConverter)
                 self.dlDict.update({d.longname : dl})
                 self.axDlDict.update({ax : dl})
                 dl.connect()
@@ -125,7 +136,7 @@ class modifyCanvas(MplCanvas):
                 ax.invert_yaxis()
             line, = ax.plot(X, Y, 'o-', picker=5)
             dl = DraggableLine(ax, line, self.humConverter.rhn)
-            dl.register_listener(self.humConverter)
+            dl.register_move_listener(self.humConverter)
             self.dlDict.update({self.humConverter.rhn : dl})
             self.axDlDict.update({ax : dl})
             dl.connect()

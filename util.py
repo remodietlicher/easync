@@ -10,18 +10,21 @@ class DraggableLine:
         self.pick = None
         self.collect = False
         self.selected = []
-        self.dataChangeListeners = []
+        self.moveListeners = []
         self.ltype = ltype
         self.converter = None
         
         self.markers, = self.ax.plot([],[],'o',color='r')
 
-    def register_listener(self, listener):
-        self.dataChangeListeners.append(listener)
+    def register_move_listener(self, listener):
+        self.moveListeners.append(listener)
 
-    def forward_change(self, data):
-        for l in self.dataChangeListeners:
-            l.handle_change(data, self.ltype)
+    def register_release_listener(self, listener):
+        self.releaseListeners.append(listener)
+
+    def forward_move(self, data):
+        for l in self.moveListeners:
+            l.handle_data_change(data, self.ltype)
         
     def select_all(self):
         self.selected = [i for i, val in enumerate(self.line.get_xdata())]
@@ -51,6 +54,8 @@ class DraggableLine:
         self.line.figure.canvas.mpl_disconnect(self.cidpick)
         self.line.figure.canvas.mpl_disconnect(self.cidrelease)
         self.line.figure.canvas.mpl_disconnect(self.cidmotion)
+        self.line.figure.canvas.mpl_disconnect(self.cidkeypress)
+        self.line.figure.canvas.mpl_disconnect(self.cidkeyrelease)
 
     def on_key_press(self, event):
         if(event.key == 'control'):
@@ -89,16 +94,15 @@ class DraggableLine:
                 xdata[idx] = x0[i] + dx
         
         self.update_data(xdata)
-        self.forward_change(xdata)
+        self.forward_move(xdata)
+
+    def on_release(self, event):
+        self.pick = None
 
     def update_data(self, xdata):
         self.line.set_xdata(xdata)
         self.update_markers()
         self.line.figure.canvas.draw()
-
-    def on_release(self, event):
-        'on release we reset the pick data'
-        self.pick = None
 
     def update_markers(self):
         xdata = self.line.get_xdata()
@@ -157,7 +161,7 @@ class HumidityConverter:
         elif(ltype == self.tn):
             self.t_listeners.append(listener)
 
-    def handle_change(self, data, t):
+    def handle_data_change(self, data, t):
         if(t == self.tn):
             self.set_temperature(data)
         elif(t == self.rhn):

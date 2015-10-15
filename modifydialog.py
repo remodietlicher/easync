@@ -18,12 +18,19 @@ class modifyDialog(Ui_ModifyDialog):
         self.plotLayout.addWidget(self.canvas)
 
         self.canvas.plot_figure(self.datahandlers, 0)
+        self.canvas.register_release_listener(self)
         
         self.copy_button.clicked.connect(self.applyCopy)
         self.change_button.clicked.connect(self.applyChange)
         self.select_all_checkbox.stateChanged.connect(self.selectAllPOnLine)
         self.tmst_spinbox.valueChanged.connect(self.loadTmst)
         self.save_button.clicked.connect(self.saveNetCDF)
+
+    def update_data(self):
+        tmst = self.tmst_spinbox.value()
+        for d in self.datahandlers:
+            dl = self.canvas.dlDict[d.longname]
+            d.var[tmst,:] = dl.line.get_xdata()
 
     def saveNetCDF(self):
         for d in self.datahandlers:
