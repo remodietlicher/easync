@@ -9,6 +9,7 @@ from configdialog import configDialog
 from modifydialog import modifyDialog
 from datahandler import dataHandler
 from str2eq import evalEq, getVars
+from util import HumidityConverter
 
 from netCDF4 import Dataset
 import numpy as np
@@ -17,6 +18,39 @@ from PyQt4 import QtCore, QtGui
 
 progname = os.path.basename(sys.argv[0])
 progversion = "0.1"
+
+hyam31 = np.array([1000, 3000, 5000, 7000, 8988.068359375, 10898.337890625, 
+                   12625.966796875, 14083.875, 15212.78125, 15977.908203125, 
+                   16365.806640625, 16381.3125, 16044.609375, 15388.43359375, 
+                   14455.39453125, 13295.40625, 11963.26171875, 10516.318359375, 
+                   9012.30859375, 7507.275390625, 6053.626953125, 4698.31591796875, 
+                   3481.1435546875, 2433.18725585938, 1575.34753417969, 917.019409179688, 
+                   454.8876953125, 171.845024108887, 36.0317916870117, 0, 0])
+hybm31 = np.array([0, 0, 0, 0, 0.000195429078303275, 0.00165527942590415, 
+                   0.0060569163179025, 0.0147566441446543, 0.0286470074206591, 
+                   0.0482312496751547, 0.0736913084983826, 0.104949295520782, 
+                   0.141722559928894, 0.183572381734848, 0.229945927858353, 
+                   0.280211985111237, 0.333690196275711, 0.38967365026474, 
+                   0.447445213794708, 0.50628736615181, 0.565485417842865, 
+                   0.624324411153793, 0.682079493999481, 0.737999826669693, 
+                   0.791286110877991, 0.841061413288116, 0.886335849761963, 
+                   0.925964534282684, 0.958599209785461, 0.982633352279663, 0.996140748262405])
+hyam47 = np.array([1000, 3000, 5000, 7000, 8988.068359375, 10898.337890625, 
+                   12625.966796875, 14083.875, 15212.78125, 15977.908203125, 
+                   16365.806640625, 16381.3125, 16044.609375, 15388.43359375, 
+                   14455.39453125, 13295.40625, 11963.26171875, 10516.318359375, 
+                   9012.30859375, 7507.275390625, 6053.626953125, 4698.31591796875, 
+                   3481.1435546875, 2433.18725585938, 1575.34753417969, 917.019409179688, 
+                   454.8876953125, 171.845024108887, 36.0317916870117, 0, 0])
+hybm47 = np.array([0, 0, 0, 0, 0.000195429078303275, 0.00165527942590415, 
+                   0.0060569163179025, 0.0147566441446543, 0.0286470074206591, 
+                   0.0482312496751547, 0.0736913084983826, 0.104949295520782, 
+                   0.141722559928894, 0.183572381734848, 0.229945927858353, 
+                   0.280211985111237, 0.333690196275711, 0.38967365026474, 
+                   0.447445213794708, 0.50628736615181, 0.565485417842865, 
+                   0.624324411153793, 0.682079493999481, 0.737999826669693, 
+                   0.791286110877991, 0.841061413288116, 0.886335849761963, 
+                   0.925964534282684, 0.958599209785461, 0.982633352279663, 0.996140748262405])
 
 class mainWindow(Ui_MainWindow):
     def __init__(self):
@@ -33,7 +67,7 @@ class mainWindow(Ui_MainWindow):
         self.plot_button.clicked.connect(self.popPlotDialog)
         self.mod_data_button.clicked.connect(self.popModDialog)
         self.specialvar_button.clicked.connect(self.addSpecialVar)
-        self.humidity_button.clicked.connect(self.makeHumCreatorPopDialog)
+        self.humidity_button.clicked.connect(self.makeHumCreatorDialog)
 
     def getFilename(self):
         self.filename = QtGui.QFileDialog.getOpenFileName(self, 'File Browser')
@@ -150,10 +184,56 @@ class mainWindow(Ui_MainWindow):
         moddialog.setWindowTitle('Modify netCDF data')
         moddialog.show()
 
-    def makeHumCreatorPopDialog(self):
-        self.popup = humidityCreatorPopDialog(self.data)
-        self.popup.setWindowTitle('Open file')
-        self.popup.show()
+    def makeHumCreatorDialog(self):
+        datahandlers = []
+        
+        # read in temperature and specific humidity from forcing file
+        temperature = self.data.variables['t'][0,:]
+        spechum = self.data.variables['q'][0,:]
+
+        varnames = ['q', 't']
+        nlvl = 0
+        for name in varnames:
+            dh = dataHandler(self.data, str(name))
+            datahandlers.append(dh)
+            nlvl = dh.nlvl
+
+        if('vct_a' in self.data.variables.keys() and 'vct_b' in self.data.variables.keys()):
+            print 'vct_a', self.data.variables['vct_a'][:].shape
+            hyam = self.data.variables['vct_a'][:]
+            hybm = self.data.variables['vct_b'][:]
+            print 'vct_a taken from file:'
+            print hyam
+            print 'vct_b taken from file:'
+            print hybm
+        elif(nlvl == 31):
+            hyam = hyam31
+            hybm = hybm31
+        elif(nlvl == 47):
+            hyam = hyam47
+            hybm = hybm47
+        else:
+            print 'cannot handle those modellevels:', self.data.nlev
+            return
+
+        if('aps' in self.data.variables.keys()):
+            aps = self.data.variables['aps'][0]
+            print 'aps taken from file: aps = %s'%(aps)
+        else:
+            aps = 100000
+
+        mlev = hyam+hybm*aps
+        # interpolate interface pressure to midlvl pressures to match T and q
+        # this can be done more carefully, but it doesn't really matter for the
+        # application, so it may be improved some time later.
+        if(len(mlev)%2 == 0):
+            i = np.arange(len(mlev)-1)
+            mlev = (mlev[i]+mlev[i+1])/2.0
+        humConverter = HumidityConverter(mlev, temperature, spechum)
+            
+        moddialog = modifyDialog(datahandlers, humConverter)
+        moddialog.setWindowTitle('Modify netCDF data')
+        moddialog.show()
 
 
 if __name__ == '__main__':
