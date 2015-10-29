@@ -65,8 +65,8 @@ class plotHandler:
 
         flat = Z.flatten()
         flen = len(flat)
-        colormax = np.sort(flat)[99*flen/100.0]
-        #colormax = np.max(self.var)
+        #colormax = np.sort(flat)[99*flen/100.0]
+        colormax = np.max(Z)
         colormin = np.min(Z)
         
         self.ax.invert_yaxis()

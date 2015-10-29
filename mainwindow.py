@@ -233,9 +233,13 @@ class mainWindow(Ui_MainWindow):
             mlev = (mlev[i]+mlev[i+1])/2.0
         humConverter = HumidityConverter(mlev, temperature, spechum)
             
-        moddialog = modifyDialog(datahandlers, humConverter)
+        moddialog = modifyDialog(datahandlers, self, humConverter)
         moddialog.setWindowTitle('Modify netCDF data')
         moddialog.show()
+        print 'finished showing moddialog'
+
+    def cleanup(self):
+        self.data.close()
 
 
 if __name__ == '__main__':

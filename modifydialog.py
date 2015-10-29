@@ -6,9 +6,10 @@ from mplcanvas import modifyCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolbar
 
 class modifyDialog(Ui_ModifyDialog):
-    def __init__(self, datahandlers, humConverter=None):
+    def __init__(self, datahandlers, parent, humConverter=None):
         Ui_ModifyDialog.__init__(self)
         self.datahandlers = datahandlers
+        self.parent = parent
         self.activeAx = None
 
         self.canvas = modifyCanvas(humConverter=humConverter, parent=self)
@@ -36,6 +37,7 @@ class modifyDialog(Ui_ModifyDialog):
         for d in self.datahandlers:
             d.writeVariableToFile()
         self.done(True)
+        self.parent.cleanup()
 
     def applyCopy(self):
         if(self.apply_selection_cb.isChecked()):
