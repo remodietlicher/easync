@@ -181,7 +181,7 @@ class mainWindow(Ui_MainWindow):
             dh = dataHandler(self.data, str(name))
             datahandlers.append(dh)
 
-        moddialog = modifyDialog(datahandlers)
+        moddialog = modifyDialog(datahandlers, self)
         moddialog.setWindowTitle('Modify netCDF data')
         moddialog.show()
 
