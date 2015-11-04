@@ -52,7 +52,6 @@ class plotHandler:
         self.ax.set_ylabel(ylabel)
         ytot = np.sum(Y, axis=0)
         yavg = ytot / Y.shape[0]
-        #self.ax.set_title('integral=%f, average=%f'%(ytot, yavg))
         self.ax.axhline(yavg, color='r', linestyle=':')
         self.ax.set_xlim(np.min(X), np.max(X))
         plt.legend()
@@ -61,20 +60,16 @@ class plotHandler:
         ymin = np.min(Y)
         ymax = np.max(Y)
 
-        YY,XX = np.meshgrid(Y, X)
+        print 'min=%s, max=%s'%(np.min(Z), np.max(Z))
 
-        flat = Z.flatten()
-        flen = len(flat)
-        #colormax = np.sort(flat)[99*flen/100.0]
-        colormax = np.max(Z)
-        colormin = np.min(Z)
+        YY,XX = np.meshgrid(Y, X)
         
         self.ax.invert_yaxis()
         if(llog):
             Z[Z<0.0] = 1e-10
-            p = self.ax.pcolor(XX, YY, Z, norm=LogNorm(vmin=np.min(Z), vmax=np.max(Z)))
+            p = self.ax.contourf(XX, YY, Z)
         else:
-            p = self.ax.pcolor(XX, YY, Z, vmin=colormin, vmax=colormax)
+            p = self.ax.contourf(XX, YY, Z)
         cb = self.fig.colorbar(p, ax=self.ax)
         cb.set_label(zlabel)
         self.axzlabel.update({self.currentAx:zlabel})
@@ -83,8 +78,3 @@ class plotHandler:
         self.ax.set_ylabel(ylabel)
         self.ax.set_xlim(np.abs(X).min(), np.abs(X).max())
         self.ax.set_ylim(top=ymin, bottom=ymax)
-
-        #yticks = np.append(np.arange(0, np.max(z), 10000),np.min(z))#z
-        #yticks[0] = zmax
-        #ylabel = [int(p/100.) for p in yticks]
-        #plt.yticks(yticks, ylabel)

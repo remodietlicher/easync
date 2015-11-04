@@ -64,7 +64,7 @@ def evalEq(string, varDict):
             value = varDict[var]
             evaluate = True
         if(evaluate):
-            value = np.where(np.abs(value)<meps, 0, value)
+            value = np.where(np.abs(value)==0, 0, value)
             if(lastOp == 'None'):
                 nested[nLvl] = copy(value)
             elif(lastOp == '+'):
@@ -75,7 +75,7 @@ def evalEq(string, varDict):
                 nested[nLvl][:] *= value
             elif(lastOp == '/'):
                 zeros = np.zeros(value.shape)
-                nested[nLvl][:] = np.where(np.abs(value)<meps, 0, nested[nLvl][:]/value)
+                nested[nLvl][:] = np.where(np.abs(value)==0, 0, nested[nLvl][:]/value)
                     
         if(var == '('):
             nLvl += 1
