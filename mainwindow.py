@@ -72,14 +72,14 @@ class mainWindow(Ui_MainWindow):
         print name
         if(name == '' and self.filename == ''):
             print 'please open a file'
-        elif(name.endswith('.nc')):
+        elif(str(name).endswith('.nc')):
             self.setFilename(name)
             self.setupVariables()
-        elif(self.filename.endswith('.nc')):
+        elif(str(self.filename).endswith('.nc')):
             self.setupVariables()
 
     def reloadFile(self):
-        if(self.filename.endswith('.nc')):
+        if(str(self.filename).endswith('.nc')):
             self.setupVariables()
         else:
             print 'please enter a valid netCDF filename'
