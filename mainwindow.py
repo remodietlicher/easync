@@ -61,19 +61,32 @@ class mainWindow(Ui_MainWindow):
         self.data = None
 
         self.file_button.clicked.connect(self.getFilename)
-        self.file_button.clicked.connect(self.setFilename)
-        self.file_button.clicked.connect(self.setupVariables)
-        self.filename_field.returnPressed.connect(self.setupVariables)
+        self.filename_field.returnPressed.connect(self.reloadFile)
         self.plot_button.clicked.connect(self.popPlotDialog)
         self.mod_data_button.clicked.connect(self.popModDialog)
         self.specialvar_button.clicked.connect(self.addSpecialVar)
         self.humidity_button.clicked.connect(self.popHumCreatorDialog)
 
     def getFilename(self):
-        self.filename = QtGui.QFileDialog.getOpenFileName(self, 'File Browser')
+        name = QtGui.QFileDialog.getOpenFileName(self, 'File Browser')
+        print name
+        if(name == '' and self.filename == ''):
+            print 'please open a file'
+        elif(name.endswith('.nc')):
+            self.setFilename(name)
+            self.setupVariables()
+        elif(self.filename.endswith('.nc')):
+            self.setupVariables()
 
-    def setFilename(self):
-        self.filename_field.setText(self.filename)
+    def reloadFile(self):
+        if(self.filename.endswith('.nc')):
+            self.setupVariables()
+        else:
+            print 'please enter a valid netCDF filename'
+
+    def setFilename(name):
+        self.filename = name
+        self.filename_field.setText(name)
 
     def addSpecialVar(self):
         eq = str(self.specialvar_field.text())
@@ -113,7 +126,11 @@ class mainWindow(Ui_MainWindow):
         self.var3d_list.clear()
         if(self.data):
             self.data.close()
-        self.data = Dataset(str(self.filename), mode='a')
+        try:
+            self.data = Dataset(str(self.filename), mode='a')
+        except:
+            print 'please enter a valid netCDF filename'
+            return
         keys = [key for key in self.data.variables]
         keys = sorted(keys)
         for key in keys:
