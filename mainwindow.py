@@ -84,7 +84,7 @@ class mainWindow(Ui_MainWindow):
         else:
             print 'please enter a valid netCDF filename'
 
-    def setFilename(name):
+    def setFilename(self, name):
         self.filename = name
         self.filename_field.setText(name)
 

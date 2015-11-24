@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import LogNorm
+import matplotlib.ticker
 
 llog = False
 
@@ -62,16 +63,46 @@ class plotHandler:
 
         print 'min=%s, max=%s'%(np.min(Z), np.max(Z))
 
+        flatsort = np.sort(Z[Z>0], axis=None)
+        print flatsort.shape, 'std:',np.std(flatsort), 'mean:', np.mean(flatsort)
+        zstd = np.std(flatsort)
+        zmean = np.mean(flatsort)
+        n = len(flatsort)
+        z20 = flatsort[np.ceil(0.2*n)]
+        z80 = flatsort[np.floor(0.8*n)]
+        z001 = flatsort[np.ceil(0.001*n)]
+        z999 = flatsort[np.floor(0.999*n)]
+        # zmin = zmean-zstd
+        # zmax = zmean+zstd
+
+        if(np.abs(np.log10(z20)-np.log10(z80))>=3):
+            norm = LogNorm()
+            # emin = np.floor(np.log10(zmean))-2
+            # emax = np.floor(np.log10(zmean))+2
+            emin = np.ceil(np.log10(np.max(Z)))-6
+            emax = np.ceil(np.log10(np.max(Z)))           
+            levels = np.logspace(emin, emax, 7)
+
+            # levels = np.insert(levels, 0, 0)
+            # levels = np.append(levels, np.max(Z))
+        else:
+            norm = None
+            levels = np.linspace(z001, z999, 7)
+
         YY,XX = np.meshgrid(Y, X)
         
         self.ax.invert_yaxis()
         if(llog):
-            Z[Z<0.0] = 1e-10
-            p = self.ax.contourf(XX, YY, Z)
+            p = self.ax.contourf(XX, YY, Z, levels=levels, norm=norm)
         else:
-            p = self.ax.contourf(XX, YY, Z)
+            p = self.ax.contourf(XX, YY, Z, levels=levels, norm=norm)
         cb = self.fig.colorbar(p, ax=self.ax)
         cb.set_label(zlabel)
+        # cb.locator = matplotlib.ticker.FixedLocator(levels)
+        # cb.formatter = matplotlib.ticker.FixedFormatter(levels)
+        # cb.update_ticks()
+
+
         self.axzlabel.update({self.currentAx:zlabel})
         self.axcb.update({self.currentAx:cb})
         self.ax.set_xlabel(xlabel)
