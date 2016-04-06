@@ -60,47 +60,52 @@ class plotHandler:
     def timeline2d(self, X, Y, Z, xlabel, ylabel, zlabel):
         ymin = np.min(Y)
         ymax = np.max(Y)
-
-        print 'min=%s, max=%s'%(np.min(Z), np.max(Z))
-
-        flatsort = np.sort(np.abs(Z[np.abs(Z)>0]), axis=None)
-        print flatsort.shape, 'std:',np.std(flatsort), 'mean:', np.mean(flatsort)
-        zstd = np.std(flatsort)
-        zmean = np.mean(flatsort)
-        n = len(flatsort)
         zmax = np.max(Z)
         zmin = np.min(Z)
-        z20 = flatsort[np.ceil(0.2*n)]
-        z80 = flatsort[np.floor(0.8*n)]
-        z0001 = flatsort[np.ceil(0.0001*n)]
-        z9999 = flatsort[np.floor(0.9999*n)]
-        z01 = flatsort[np.ceil(0.01*n)]
-        z99 = flatsort[np.floor(0.99*n)]
-        tickpwr = np.floor(np.log10(z99))
 
         adjustTicks = False
-        magdiff = np.abs(np.log10(z20)-np.log10(z80))
-        print 'magdiff:', magdiff
-        if(magdiff>=5):
-            norm = LogNorm()
-            # emin = np.floor(np.log10(zmean))-3
-            # emax = np.floor(np.log10(zmean))+3
-            emin = np.ceil(np.log10(zmax))-6
-            emax = np.ceil(np.log10(zmax))
+        tickpwr = 0
+        magdiff = 0
+        norm = None
+        print 'min=%s, max=%s'%(zmin, zmax)
 
-            
-            levels = np.logspace(emin, emax, 7)
+        if(zmin < 0 or zmin == zmax):
+            levels = np.linspace(zmin, zmax, 7)          
         else:
-            norm = None
-            #levels = np.linspace(min(0,z0001), z9999, 7)
-            if(np.abs(z01-z99)>0):
-                levels = np.linspace(z01, z99, 7)
+            flatsort = np.sort(np.abs(Z[np.abs(Z)>0]), axis=None)
+            print flatsort.shape, 'std:',np.std(flatsort), 'mean:', np.mean(flatsort)
+            zstd = np.std(flatsort)
+            zmean = np.mean(flatsort)
+            n = len(flatsort)
+            z20 = flatsort[np.ceil(0.2*n)]
+            z80 = flatsort[np.floor(0.8*n)]
+            z0001 = flatsort[np.ceil(0.0001*n)]
+            z9999 = flatsort[np.floor(0.9999*n)]
+            z01 = flatsort[np.ceil(0.01*n)]
+            z99 = flatsort[np.floor(0.99*n)]
+            tickpwr = np.floor(np.log10(z99))
+
+            magdiff = np.abs(np.log10(z20)-np.log10(z80))
+            print 'magdiff:', magdiff
+            if(magdiff>=5):
+                norm = LogNorm()
+                # emin = np.floor(np.log10(zmean))-3
+                # emax = np.floor(np.log10(zmean))+3
+                emin = np.ceil(np.log10(zmax))-6
+                emax = np.ceil(np.log10(zmax))
+
+
+                levels = np.logspace(emin, emax, 7)
             else:
-                levels = np.linspace(zmin, zmax, 7)
-            if(tickpwr != 0):
-                zlabel = r'$10^%i$ %s'%(tickpwr, zlabel)
-            prettyticks = ['%.3f'%(v/10**tickpwr) for v in levels]
-            adjustTicks = True
+                #levels = np.linspace(min(0,z0001), z9999, 7)
+                if(np.abs(z01-z99)>0):
+                    levels = np.linspace(z01, z99, 7)
+                else:
+                    levels = np.linspace(zmin, zmax, 7)
+                if(tickpwr != 0):
+                    zlabel = r'$10^%i$ %s'%(tickpwr, zlabel)
+                prettyticks = ['%.3f'%(v/10**tickpwr) for v in levels]
+                adjustTicks = True
         
         YY,XX = np.meshgrid(Y, X)
         
