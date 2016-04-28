@@ -36,8 +36,6 @@ class modifyDialog(Ui_ModifyDialog):
     def saveNetCDF(self):
         for d in self.datahandlers:
             d.writeVariableToFile()
-        self.done(True)
-        self.parent.cleanup()
 
     def applyCopy(self):
         if(self.apply_selection_cb.isChecked()):

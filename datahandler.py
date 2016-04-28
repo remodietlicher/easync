@@ -101,4 +101,5 @@ class dataHandler:
 
     def writeVariableToFile(self):
         self.data.variables[self.varlabel][:] = self.var[:]
+        self.data.sync()
         print 'variable "%s" written to file!'%(self.longname)

@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import scipy
 from matplotlib.colors import LogNorm
 import matplotlib.ticker
 
@@ -72,15 +73,13 @@ class plotHandler:
         if(zmin < 0 or zmin == zmax):
             levels = np.linspace(zmin, zmax, 7)          
         else:
-            flatsort = np.sort(np.abs(Z[np.abs(Z)>0]), axis=None)
-            print flatsort.shape, 'std:',np.std(flatsort), 'mean:', np.mean(flatsort)
+            flatsort = np.sort(Z[Z>0], axis=None)
             zstd = np.std(flatsort)
             zmean = np.mean(flatsort)
+            print flatsort.shape, 'std:', zstd, 'mean:', zmean
             n = len(flatsort)
             z20 = flatsort[np.ceil(0.2*n)]
             z80 = flatsort[np.floor(0.8*n)]
-            z0001 = flatsort[np.ceil(0.0001*n)]
-            z9999 = flatsort[np.floor(0.9999*n)]
             z01 = flatsort[np.ceil(0.01*n)]
             z99 = flatsort[np.floor(0.99*n)]
             tickpwr = np.floor(np.log10(z99))
@@ -89,15 +88,11 @@ class plotHandler:
             print 'magdiff:', magdiff
             if(magdiff>=5):
                 norm = LogNorm()
-                # emin = np.floor(np.log10(zmean))-3
-                # emax = np.floor(np.log10(zmean))+3
                 emin = np.ceil(np.log10(zmax))-6
                 emax = np.ceil(np.log10(zmax))
-
-
                 levels = np.logspace(emin, emax, 7)
+
             else:
-                #levels = np.linspace(min(0,z0001), z9999, 7)
                 if(np.abs(z01-z99)>0):
                     levels = np.linspace(z01, z99, 7)
                 else:
