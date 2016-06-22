@@ -70,21 +70,61 @@ class plotHandler:
         norm = None
         print 'min=%s, max=%s'%(zmin, zmax)
 
-        flatsort = np.sort(Z, axis=None)
+        flatsort = np.sort(Z[np.abs(Z) > 1e-15], axis=None)
         n = len(flatsort)
-        z20 = flatsort[np.ceil(0.20*n)]
-        z80 = flatsort[np.floor(0.80*n)]
-        z01 = flatsort[np.ceil(0.01*n)]
-        z99 = flatsort[np.floor(0.99*n)]
-        tickpwr = np.floor(np.log10(z99))
-        nlev = 500
+        if(n>0):
+            z20 = flatsort[np.ceil(0.2*n)]
+            z80 = flatsort[np.floor(0.8*n)]
+            z01 = flatsort[np.ceil(0.01*n)]
+            z99 = flatsort[np.floor(0.99*n)]
+            tickpwr = np.floor(np.log10(z99))
+        else:
+            z20 = zmin
+            z80 = zmax
+            z01 = zmin
+            z99 = zmax
+            tickpwr = 0
+
+        print 'z20=%s, z80=%s'%(z20, z80)
+
+        if(z20 < 0 or z20 == z80):
+            levels = np.linspace(zmin, zmax, 7)          
+        else:
+            tickpwr = np.floor(np.log10(z99))
+
+            magdiff = np.abs(np.log10(z20)-np.log10(z80))
+            print 'magdiff:', magdiff
+            if(magdiff>=6 or llog):
+                norm = LogNorm()
+                emin = np.ceil(np.log10(zmax))-6
+                emax = np.ceil(np.log10(zmax))
+                levels = np.logspace(emin, emax, 7)
+
+            else:
+                if(np.abs(z01-z99)>0):
+                    levels = np.linspace(z01, z99, 7)
+                else:
+                    levels = np.linspace(zmin, zmax, 7)
+                if(tickpwr != 0):
+                    zlabel = r'$10^%i$ %s'%(tickpwr, zlabel)
+                prettyticks = ['%.3f'%(v/10**tickpwr) for v in levels]
+                adjustTicks = True
         
         YY,XX = np.meshgrid(Y, X)
         
         self.ax.invert_yaxis()
-        p = self.ax.contourf(XX, YY, Z, nlev, norm=norm)#, cmap='gist_stern')
+        if(norm):
+            p = self.ax.contourf(XX, YY, Z, levels=levels, norm=norm)
+        else:
+            p = self.ax.contourf(XX, YY, Z, levels=levels, norm=norm, extend='both')
+            p.cmap.set_under('b', alpha=0.3)
+            p.cmap.set_over('r', alpha=0.3)
         cb = self.fig.colorbar(p, ax=self.ax)
         cb.set_label(zlabel)
+        cb.locator = matplotlib.ticker.FixedLocator(levels)
+        if(adjustTicks):
+            cb.formatter = matplotlib.ticker.FixedFormatter(prettyticks)
+            cb.update_ticks()
 
 
         self.axzlabel.update({self.currentAx:zlabel})
