@@ -68,7 +68,7 @@ class mainWindow(Ui_MainWindow):
         self.humidity_button.clicked.connect(self.popHumCreatorDialog)
 
     def getFilename(self):
-        name = QtGui.QFileDialog.getOpenFileName(self, 'File Browser')
+        name = QtGui.QFileDialog.getOpenFileName(self, 'File Browser', directory=self.filename)
         print name
         if(name == '' and self.filename == ''):
             print 'please open a file'
