@@ -5,6 +5,7 @@ from matplotlib.colors import LogNorm
 import matplotlib.ticker
 
 llog = False
+lnotlog = True
 
 class plotHandler:
     def __init__(self, fig):
@@ -94,7 +95,7 @@ class plotHandler:
 
             magdiff = np.abs(np.log10(z20)-np.log10(z80))
             print 'magdiff:', magdiff
-            if(magdiff>=6 or llog):
+            if((magdiff>=6 or llog) and not lnotlog):
                 norm = LogNorm()
                 emin = np.ceil(np.log10(zmax))-6
                 emax = np.ceil(np.log10(zmax))
