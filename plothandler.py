@@ -91,7 +91,7 @@ class plotHandler:
         if(z20 < 0 or z20 == z80):
             levels = np.linspace(zmin, zmax, 7)          
         else:
-            tickpwr = np.floor(np.log10(z99))
+            tickpwr = max(np.floor(np.log10(np.abs(z99))), np.floor(np.log10(np.abs(z01))))
 
             magdiff = np.abs(np.log10(z20)-np.log10(z80))
             print 'magdiff:', magdiff
@@ -107,8 +107,9 @@ class plotHandler:
                 else:
                     levels = np.linspace(zmin, zmax, 7)
                 if(tickpwr != 0):
-                    zlabel = r'$10^%i$ %s'%(tickpwr, zlabel)
+                    zlabel = r'$10^{%i}$ %s'%(tickpwr, zlabel)
                 prettyticks = ['%.3f'%(v/10**tickpwr) for v in levels]
+                # prettyticks = ['%.1g'%(v) for v in levels]
                 adjustTicks = True
         
         YY,XX = np.meshgrid(Y, X)
