@@ -88,7 +88,9 @@ class plotHandler:
 
         print 'z20=%s, z80=%s'%(z20, z80)
 
-        if(z20 < 0 or z20 == z80):
+        if(zmin == zmax):
+            levels = [zmin-1, zmax+1]
+        elif(z20 < 0 or z20 == z80):
             levels = np.linspace(zmin, zmax, 7)          
         else:
             tickpwr = max(np.floor(np.log10(np.abs(z99))), np.floor(np.log10(np.abs(z01))))
