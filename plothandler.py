@@ -73,7 +73,7 @@ class plotHandler:
 
         flatsort = np.sort(Z[np.abs(Z) > 1e-15], axis=None)
         n = len(flatsort)
-        if(n>0):
+        if(n>10):
             z20 = flatsort[np.ceil(0.2*n)]
             z80 = flatsort[np.floor(0.8*n)]
             z01 = flatsort[np.ceil(0.01*n)]
