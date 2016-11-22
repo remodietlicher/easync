@@ -3,7 +3,6 @@
 import sys
 import os
 from cmainwindow import Ui_MainWindow
-from humiditycreatorpopdialog import humidityCreatorPopDialog
 from plotdialog import plotDialog
 from configdialog import configDialog
 from modifydialog import modifyDialog

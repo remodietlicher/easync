@@ -100,6 +100,8 @@ class modifyCanvas(MplCanvas):
         self.height = datahandlers[0].height
         self.heightunit = datahandlers[0].heightunit
         self.fig.clf()
+        maxVals = [np.max(d.var) for d in self.datahandlers]
+        minVals = [np.min(d.var) for d in self.datahandlers]
         N = len(datahandlers)
         if(self.humConverter): N += 1
         for i,d in enumerate(datahandlers):
@@ -109,6 +111,7 @@ class modifyCanvas(MplCanvas):
                 ax.set_title(d.longname)
                 ax.set_ylabel(d.heightunit)
                 ax.set_xlabel(d.varunit)
+                ax.set_xlim(xmin=minVals[i], xmax=maxVals[i])
                 X = d.var[tmst]
                 Y = d.height
                 if(not ax.yaxis_inverted()):
